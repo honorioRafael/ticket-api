@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;
@@ -15,15 +16,9 @@ public class CreateOrderUseCase
     private readonly IEventRepository _eventRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateOrderCommand> _validator;
+    private readonly IMapper _mapper;
 
-    public CreateOrderUseCase(
-        ICustomerRepository customerRepository,
-        IOrderRepository orderRepository,
-        IReservationRepository reservationRepository,
-        ITicketTypeRepository ticketTypeRepository,
-        IEventRepository eventRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<CreateOrderCommand> validator)
+    public CreateOrderUseCase(ICustomerRepository customerRepository, IOrderRepository orderRepository, IReservationRepository reservationRepository, ITicketTypeRepository ticketTypeRepository, IEventRepository eventRepository, IUnitOfWork unitOfWork, IValidator<CreateOrderCommand> validator, IMapper mapper)
     {
         _customerRepository = customerRepository;
         _orderRepository = orderRepository;
@@ -32,6 +27,7 @@ public class CreateOrderUseCase
         _eventRepository = eventRepository;
         _unitOfWork = unitOfWork;
         _validator = validator;
+        _mapper = mapper;
     }
 
     public async Task<OrderDto> ExecuteAsync(CreateOrderCommand command, CancellationToken cancellationToken = default)
@@ -77,22 +73,6 @@ public class CreateOrderUseCase
 
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return MapToDto(order);
-    }
-
-    public static OrderDto MapToDto(Order order)
-    {
-        var items = order.OrderItems.Select(i => new OrderItemDto(
-            i.Id, i.TicketTypeId, i.UnitPrice, i.Quantity
-        )).ToList();
-
-        return new OrderDto(
-            order.Id,
-            order.CustomerId,
-            order.PlacedAt,
-            order.TotalAmount,
-            order.Status.ToString().ToLower(),
-            items
-        );
+        return _mapper.Map<OrderDto>(order);
     }
 }

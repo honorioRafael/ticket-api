@@ -16,13 +16,7 @@ public class ProcessPaymentUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<ProcessPaymentCommand> _validator;
 
-    public ProcessPaymentUseCase(
-        IOrderRepository orderRepository,
-        IReservationRepository reservationRepository,
-        IPaymentRepository paymentRepository,
-        ITicketRepository ticketRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<ProcessPaymentCommand> validator)
+    public ProcessPaymentUseCase(IOrderRepository orderRepository, IReservationRepository reservationRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, IUnitOfWork unitOfWork, IValidator<ProcessPaymentCommand> validator)
     {
         _orderRepository = orderRepository;
         _reservationRepository = reservationRepository;

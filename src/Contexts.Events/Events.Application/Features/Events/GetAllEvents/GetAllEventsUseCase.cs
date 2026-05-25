@@ -1,5 +1,5 @@
+using AutoMapper;
 using Events.Application.DTOs;
-using Events.Application.Features.Events.CreateEvent;
 using Events.Domain.Repositories;
 using SharedKernel.Models;
 
@@ -8,10 +8,12 @@ namespace Events.Application.Features.Events.GetAllEvents;
 public class GetAllEventsUseCase
 {
     private readonly IEventRepository _eventRepository;
+    private readonly IMapper _mapper;
 
-    public GetAllEventsUseCase(IEventRepository eventRepository)
+    public GetAllEventsUseCase(IEventRepository eventRepository, IMapper mapper)
     {
         _eventRepository = eventRepository;
+        _mapper = mapper;
     }
 
     public async Task<PaginatedList<EventDto>> ExecuteAsync(int page, int pageSize, CancellationToken cancellationToken = default)
@@ -21,7 +23,7 @@ public class GetAllEventsUseCase
 
         var (items, totalCount) = await _eventRepository.GetAllAsync(page, pageSize, cancellationToken);
 
-        var dtos = items.Select(CreateEventUseCase.MapToDto).ToList();
+        var dtos = _mapper.Map<List<EventDto>>(items);
 
         return new PaginatedList<EventDto>(dtos, page, pageSize, totalCount);
     }

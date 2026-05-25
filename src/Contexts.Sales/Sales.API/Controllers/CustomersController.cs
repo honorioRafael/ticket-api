@@ -17,12 +17,7 @@ public class CustomersController : ControllerBase
     private readonly UpdateCustomerUseCase _updateCustomerUseCase;
     private readonly DeleteCustomerUseCase _deleteCustomerUseCase;
 
-    public CustomersController(
-        CreateCustomerUseCase createCustomerUseCase,
-        GetCustomerUseCase getCustomerUseCase,
-        GetAllCustomersUseCase getAllCustomersUseCase,
-        UpdateCustomerUseCase updateCustomerUseCase,
-        DeleteCustomerUseCase deleteCustomerUseCase)
+    public CustomersController(CreateCustomerUseCase createCustomerUseCase, GetCustomerUseCase getCustomerUseCase, GetAllCustomersUseCase getAllCustomersUseCase, UpdateCustomerUseCase updateCustomerUseCase, DeleteCustomerUseCase deleteCustomerUseCase)
     {
         _createCustomerUseCase = createCustomerUseCase;
         _getCustomerUseCase = getCustomerUseCase;

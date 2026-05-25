@@ -1,5 +1,5 @@
+using AutoMapper;
 using Events.Application.DTOs;
-using Events.Application.Features.Events.CreateEvent;
 using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
 using FluentValidation;
@@ -12,17 +12,15 @@ public class UpdateEventUseCase
     private readonly IVenueRepository _venueRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<UpdateEventCommand> _validator;
+    private readonly IMapper _mapper;
 
-    public UpdateEventUseCase(
-        IEventRepository eventRepository,
-        IVenueRepository venueRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<UpdateEventCommand> validator)
+    public UpdateEventUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<UpdateEventCommand> validator, IMapper mapper)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;
         _unitOfWork = unitOfWork;
         _validator = validator;
+        _mapper = mapper;
     }
 
     public async Task<EventDto> ExecuteAsync(UpdateEventCommand command, CancellationToken cancellationToken = default)
@@ -41,6 +39,6 @@ public class UpdateEventUseCase
         _eventRepository.Update(@event);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return CreateEventUseCase.MapToDto(@event);
+        return _mapper.Map<EventDto>(@event);
     }
 }

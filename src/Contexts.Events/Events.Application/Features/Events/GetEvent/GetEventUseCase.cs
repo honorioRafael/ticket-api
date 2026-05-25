@@ -1,5 +1,5 @@
+using AutoMapper;
 using Events.Application.DTOs;
-using Events.Application.Features.Events.CreateEvent;
 using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
 
@@ -8,10 +8,12 @@ namespace Events.Application.Features.Events.GetEvent;
 public class GetEventUseCase
 {
     private readonly IEventRepository _eventRepository;
+    private readonly IMapper _mapper;
 
-    public GetEventUseCase(IEventRepository eventRepository)
+    public GetEventUseCase(IEventRepository eventRepository, IMapper mapper)
     {
         _eventRepository = eventRepository;
+        _mapper = mapper;
     }
 
     public async Task<EventDto> ExecuteAsync(Guid eventId, CancellationToken cancellationToken = default)
@@ -20,6 +22,6 @@ public class GetEventUseCase
         if (@event == null)
             throw new EventNotFoundException();
 
-        return CreateEventUseCase.MapToDto(@event);
+        return _mapper.Map<EventDto>(@event);
     }
 }

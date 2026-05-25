@@ -11,10 +11,7 @@ public class UpdateCustomerUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<UpdateCustomerCommand> _validator;
 
-    public UpdateCustomerUseCase(
-        ICustomerRepository customerRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<UpdateCustomerCommand> validator)
+    public UpdateCustomerUseCase(ICustomerRepository customerRepository, IUnitOfWork unitOfWork, IValidator<UpdateCustomerCommand> validator)
     {
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;

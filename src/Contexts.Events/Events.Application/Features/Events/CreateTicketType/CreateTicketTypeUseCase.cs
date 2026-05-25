@@ -12,18 +12,13 @@ public class CreateTicketTypeUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateTicketTypeCommand> _validator;
 
-    public CreateTicketTypeUseCase(
-        IEventRepository eventRepository,
-        IVenueRepository venueRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<CreateTicketTypeCommand> validator)
+    public CreateTicketTypeUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<CreateTicketTypeCommand> validator)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;
         _unitOfWork = unitOfWork;
         _validator = validator;
     }
-
     public async Task<TicketTypeDto> ExecuteAsync(CreateTicketTypeCommand command, CancellationToken cancellationToken = default)
     {
         await _validator.ValidateAndThrowAsync(command, cancellationToken);

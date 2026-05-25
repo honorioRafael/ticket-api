@@ -1,5 +1,5 @@
+using AutoMapper;
 using Sales.Application.DTOs;
-using Sales.Application.Features.Orders.CreateOrder;
 using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
 
@@ -8,10 +8,12 @@ namespace Sales.Application.Features.Orders.GetOrder;
 public class GetOrderUseCase
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IMapper _mapper;
 
-    public GetOrderUseCase(IOrderRepository orderRepository)
+    public GetOrderUseCase(IOrderRepository orderRepository, IMapper mapper)
     {
         _orderRepository = orderRepository;
+        _mapper = mapper;
     }
 
     public async Task<OrderDto> ExecuteAsync(Guid orderId, CancellationToken cancellationToken = default)
@@ -20,6 +22,6 @@ public class GetOrderUseCase
         if (order == null)
             throw new OrderNotFoundException();
 
-        return CreateOrderUseCase.MapToDto(order);
+        return _mapper.Map<OrderDto>(order);
     }
 }

@@ -1,3 +1,4 @@
+using AutoMapper;
 using Events.Application.DTOs;
 using Events.Domain.Entities;
 using Events.Domain.Exceptions;
@@ -12,17 +13,15 @@ public class CreateEventUseCase
     private readonly IVenueRepository _venueRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateEventCommand> _validator;
+    private readonly IMapper _mapper;
 
-    public CreateEventUseCase(
-        IEventRepository eventRepository,
-        IVenueRepository venueRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<CreateEventCommand> validator)
+    public CreateEventUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<CreateEventCommand> validator, IMapper mapper)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;
         _unitOfWork = unitOfWork;
         _validator = validator;
+        _mapper = mapper;
     }
 
     public async Task<EventDto> ExecuteAsync(CreateEventCommand command, CancellationToken cancellationToken = default)
@@ -37,23 +36,6 @@ public class CreateEventUseCase
         await _eventRepository.AddAsync(@event, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return MapToDto(@event);
-    }
-
-    public static EventDto MapToDto(Event @event)
-    {
-        var ticketTypes = @event.TicketTypes.Select(t => new TicketTypeDto(
-            t.Id, t.EventId, t.Name, t.Price, t.TotalQuantity, t.AvailableQuantity
-        )).ToList();
-
-        return new EventDto(
-            @event.Id,
-            @event.Name,
-            @event.StartsAt,
-            @event.EndsAt,
-            @event.Status.ToString().ToLower(),
-            @event.VenueId,
-            ticketTypes
-        );
+        return _mapper.Map<EventDto>(@event);
     }
 }

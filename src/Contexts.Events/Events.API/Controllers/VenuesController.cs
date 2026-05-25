@@ -17,12 +17,7 @@ public class VenuesController : ControllerBase
     private readonly DeleteVenueUseCase _deleteVenueUseCase;
     private readonly GetAllVenuesUseCase _getAllVenuesUseCase;
 
-    public VenuesController(
-        CreateVenueUseCase createVenueUseCase,
-        GetVenueUseCase getVenueUseCase,
-        UpdateVenueUseCase updateVenueUseCase,
-        DeleteVenueUseCase deleteVenueUseCase,
-        GetAllVenuesUseCase getAllVenuesUseCase)
+    public VenuesController(CreateVenueUseCase createVenueUseCase, GetVenueUseCase getVenueUseCase, UpdateVenueUseCase updateVenueUseCase, DeleteVenueUseCase deleteVenueUseCase, GetAllVenuesUseCase getAllVenuesUseCase)
     {
         _createVenueUseCase = createVenueUseCase;
         _getVenueUseCase = getVenueUseCase;

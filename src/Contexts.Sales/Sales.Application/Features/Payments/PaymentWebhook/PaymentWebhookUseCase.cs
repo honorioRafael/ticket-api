@@ -16,14 +16,7 @@ public class PaymentWebhookUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<PaymentWebhookCommand> _validator;
 
-    public PaymentWebhookUseCase(
-        IOrderRepository orderRepository,
-        IReservationRepository reservationRepository,
-        IPaymentRepository paymentRepository,
-        ITicketRepository ticketRepository,
-        ITicketTypeRepository ticketTypeRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<PaymentWebhookCommand> validator)
+    public PaymentWebhookUseCase(IOrderRepository orderRepository, IReservationRepository reservationRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ITicketTypeRepository ticketTypeRepository, IUnitOfWork unitOfWork, IValidator<PaymentWebhookCommand> validator)
     {
         _orderRepository = orderRepository;
         _reservationRepository = reservationRepository;

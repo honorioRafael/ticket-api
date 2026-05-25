@@ -23,15 +23,7 @@ public class EventsController : ControllerBase
     private readonly PublishEventUseCase _publishEventUseCase;
     private readonly CancelEventUseCase _cancelEventUseCase;
 
-    public EventsController(
-        CreateEventUseCase createEventUseCase,
-        GetEventUseCase getEventUseCase,
-        UpdateEventUseCase updateEventUseCase,
-        DeleteEventUseCase deleteEventUseCase,
-        GetAllEventsUseCase getAllEventsUseCase,
-        CreateTicketTypeUseCase createTicketTypeUseCase,
-        PublishEventUseCase publishEventUseCase,
-        CancelEventUseCase cancelEventUseCase)
+    public EventsController(CreateEventUseCase createEventUseCase, GetEventUseCase getEventUseCase, UpdateEventUseCase updateEventUseCase, DeleteEventUseCase deleteEventUseCase, GetAllEventsUseCase getAllEventsUseCase, CreateTicketTypeUseCase createTicketTypeUseCase, PublishEventUseCase publishEventUseCase, CancelEventUseCase cancelEventUseCase)
     {
         _createEventUseCase = createEventUseCase;
         _getEventUseCase = getEventUseCase;
@@ -80,10 +72,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost("{eventId:guid}/ticket-types")]
-    public async Task<IActionResult> CreateTicketType(
-        [FromRoute] Guid eventId,
-        [FromBody] CreateTicketTypeRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateTicketType([FromRoute] Guid eventId, [FromBody] CreateTicketTypeRequest request, CancellationToken cancellationToken)
     {
         var command = new CreateTicketTypeCommand(eventId, request.Name, request.Price, request.TotalQuantity);
         var ticketType = await _createTicketTypeUseCase.ExecuteAsync(command, cancellationToken);

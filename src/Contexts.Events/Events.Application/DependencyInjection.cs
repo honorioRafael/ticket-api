@@ -21,6 +21,7 @@ public static class DependencyInjection
     public static IServiceCollection AddEventsApplication(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+        services.AddAutoMapper(cfg => cfg.AddMaps(typeof(DependencyInjection).Assembly));
 
         services.AddScoped<CreateVenueUseCase>();
         services.AddScoped<GetVenueUseCase>();

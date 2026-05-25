@@ -17,12 +17,7 @@ public class OrdersController : ControllerBase
     private readonly DeleteOrderUseCase _deleteOrderUseCase;
     private readonly ProcessPaymentUseCase _processPaymentUseCase;
 
-    public OrdersController(
-        CreateOrderUseCase createOrderUseCase,
-        GetOrderUseCase getOrderUseCase,
-        GetAllOrdersUseCase getAllOrdersUseCase,
-        DeleteOrderUseCase deleteOrderUseCase,
-        ProcessPaymentUseCase processPaymentUseCase)
+    public OrdersController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase, DeleteOrderUseCase deleteOrderUseCase, ProcessPaymentUseCase processPaymentUseCase)
     {
         _createOrderUseCase = createOrderUseCase;
         _getOrderUseCase = getOrderUseCase;
@@ -60,10 +55,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("{id:guid}/payment")]
-    public async Task<IActionResult> ProcessPayment(
-        [FromRoute] Guid id,
-        [FromBody] ProcessPaymentRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> ProcessPayment([FromRoute] Guid id, [FromBody] ProcessPaymentRequest request, CancellationToken cancellationToken)
     {
         var command = new ProcessPaymentCommand(id, request.Method);
         var payment = await _processPaymentUseCase.ExecuteAsync(command, cancellationToken);

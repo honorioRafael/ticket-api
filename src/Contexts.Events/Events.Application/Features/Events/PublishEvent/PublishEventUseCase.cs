@@ -9,10 +9,7 @@ public class PublishEventUseCase
     private readonly IVenueRepository _venueRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public PublishEventUseCase(
-        IEventRepository eventRepository,
-        IVenueRepository venueRepository,
-        IUnitOfWork unitOfWork)
+    public PublishEventUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IUnitOfWork unitOfWork)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;

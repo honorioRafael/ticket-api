@@ -11,10 +11,7 @@ public class UpdateVenueUseCase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<UpdateVenueCommand> _validator;
 
-    public UpdateVenueUseCase(
-        IVenueRepository venueRepository,
-        IUnitOfWork unitOfWork,
-        IValidator<UpdateVenueCommand> validator)
+    public UpdateVenueUseCase(IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<UpdateVenueCommand> validator)
     {
         _venueRepository = venueRepository;
         _unitOfWork = unitOfWork;
