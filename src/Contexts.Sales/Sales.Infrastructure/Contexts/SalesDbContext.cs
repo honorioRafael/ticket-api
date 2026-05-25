@@ -29,7 +29,9 @@ public class SalesDbContext : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Document).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(500);
             entity.HasIndex(e => e.Document).IsUnique();
+            entity.HasIndex(e => e.Email).IsUnique();
         });
 
         modelBuilder.Entity<Order>(entity =>

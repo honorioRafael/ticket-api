@@ -11,6 +11,8 @@ using Events.Application.Features.Venues.DeleteVenue;
 using Events.Application.Features.Venues.GetAllVenues;
 using Events.Application.Features.Venues.GetVenue;
 using Events.Application.Features.Venues.UpdateVenue;
+using Events.Application.Features.Organizers.RegisterOrganizer;
+using Events.Application.Features.Organizers.LoginOrganizer;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,6 +39,9 @@ public static class DependencyInjection
         services.AddScoped<PublishEventUseCase>();
         services.AddScoped<CancelEventUseCase>();
         services.AddScoped<CreateTicketTypeUseCase>();
+
+        services.AddScoped<RegisterOrganizerUseCase>();
+        services.AddScoped<LoginOrganizerUseCase>();
 
         return services;
     }

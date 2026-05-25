@@ -1,14 +1,17 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Features.Orders.CreateOrder;
 using Sales.Application.Features.Orders.DeleteOrder;
 using Sales.Application.Features.Orders.GetAllOrders;
 using Sales.Application.Features.Orders.GetOrder;
 using Sales.Application.Features.Payments.ProcessPayment;
+using SharedKernel.Security;
 
 namespace Sales.API.Controllers;
 
 [ApiController]
 [Route("orders")]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly CreateOrderUseCase _createOrderUseCase;
@@ -16,19 +19,32 @@ public class OrdersController : ControllerBase
     private readonly GetAllOrdersUseCase _getAllOrdersUseCase;
     private readonly DeleteOrderUseCase _deleteOrderUseCase;
     private readonly ProcessPaymentUseCase _processPaymentUseCase;
+    private readonly ICurrentUser _currentUser;
 
-    public OrdersController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase, DeleteOrderUseCase deleteOrderUseCase, ProcessPaymentUseCase processPaymentUseCase)
+    public OrdersController(
+        CreateOrderUseCase createOrderUseCase, 
+        GetOrderUseCase getOrderUseCase, 
+        GetAllOrdersUseCase getAllOrdersUseCase, 
+        DeleteOrderUseCase deleteOrderUseCase, 
+        ProcessPaymentUseCase processPaymentUseCase,
+        ICurrentUser currentUser)
     {
         _createOrderUseCase = createOrderUseCase;
         _getOrderUseCase = getOrderUseCase;
         _getAllOrdersUseCase = getAllOrdersUseCase;
         _deleteOrderUseCase = deleteOrderUseCase;
         _processPaymentUseCase = processPaymentUseCase;
+        _currentUser = currentUser;
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderCommand command, CancellationToken cancellationToken)
     {
+        if (command.CustomerId != _currentUser.Id)
+        {
+            return Forbid("Você só pode criar pedidos para o seu próprio usuário.");
+        }
+
         var order = await _createOrderUseCase.ExecuteAsync(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
     }
@@ -37,19 +53,30 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var order = await _getOrderUseCase.ExecuteAsync(id, cancellationToken);
+        if (order.CustomerId != _currentUser.Id)
+        {
+            return Forbid("Você não tem permissão para visualizar este pedido.");
+        }
+
         return Ok(order);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _getAllOrdersUseCase.ExecuteAsync(page, pageSize, cancellationToken);
+        var result = await _getAllOrdersUseCase.ExecuteAsync(page, pageSize, _currentUser.Id, cancellationToken);
         return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
+        var order = await _getOrderUseCase.ExecuteAsync(id, cancellationToken);
+        if (order.CustomerId != _currentUser.Id)
+        {
+            return Forbid("Você não tem permissão para excluir este pedido.");
+        }
+
         await _deleteOrderUseCase.ExecuteAsync(id, cancellationToken);
         return NoContent();
     }
@@ -57,6 +84,12 @@ public class OrdersController : ControllerBase
     [HttpPost("{id:guid}/payment")]
     public async Task<IActionResult> ProcessPayment([FromRoute] Guid id, [FromBody] ProcessPaymentRequest request, CancellationToken cancellationToken)
     {
+        var order = await _getOrderUseCase.ExecuteAsync(id, cancellationToken);
+        if (order.CustomerId != _currentUser.Id)
+        {
+            return Forbid("Você não tem permissão para realizar pagamento deste pedido.");
+        }
+
         var command = new ProcessPaymentCommand(id, request.Method);
         var payment = await _processPaymentUseCase.ExecuteAsync(command, cancellationToken);
         return Ok(payment);

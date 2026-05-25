@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Sales.Application.Features.Customers.CreateCustomer;
+using Sales.Application.Features.Customers.LoginCustomer;
 using Sales.Application.Features.Customers.DeleteCustomer;
 using Sales.Application.Features.Customers.GetAllCustomers;
 using Sales.Application.Features.Customers.GetCustomer;
@@ -23,6 +24,7 @@ public static class DependencyInjection
         services.AddAutoMapper(cfg => cfg.AddMaps(typeof(DependencyInjection).Assembly));
 
         services.AddScoped<CreateCustomerUseCase>();
+        services.AddScoped<LoginCustomerUseCase>();
         services.AddScoped<GetCustomerUseCase>();
         services.AddScoped<GetAllCustomersUseCase>();
         services.AddScoped<UpdateCustomerUseCase>();

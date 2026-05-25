@@ -29,6 +29,11 @@ public class CustomerRepository : ICustomerRepository
         return await _context.Customers.SingleOrDefaultAsync(c => c.Document == document, cancellationToken);
     }
 
+    public async Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Customers.SingleOrDefaultAsync(c => c.Email == email, cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Customer> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.Customers.AsNoTracking();

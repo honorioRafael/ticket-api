@@ -22,13 +22,17 @@ public class CreateCustomerUseCase
     {
         await _validator.ValidateAndThrowAsync(command, cancellationToken);
 
-        var existing = await _customerRepository.GetByDocumentAsync(command.Document, cancellationToken);
-        if (existing != null)
-        {
-            return new CustomerDto(existing.Id, existing.Name, existing.Email, existing.Document);
-        }
+        var existingDoc = await _customerRepository.GetByDocumentAsync(command.Document, cancellationToken);
+        if (existingDoc != null)
+            throw new ArgumentException("O documento informado já está cadastrado.");
 
-        var customer = new Customer(command.Name, command.Email, command.Document);
+        var existingEmail = await _customerRepository.GetByEmailAsync(command.Email, cancellationToken);
+        if (existingEmail != null)
+            throw new ArgumentException("O e-mail informado já está cadastrado.");
+
+        var passwordHash = SharedKernel.Security.PasswordHasher.HashPassword(command.Password);
+        var customer = new Customer(command.Name, command.Email, command.Document, passwordHash);
+        
         await _customerRepository.AddAsync(customer, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 

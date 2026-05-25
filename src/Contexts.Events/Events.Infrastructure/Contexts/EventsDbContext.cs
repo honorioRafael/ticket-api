@@ -8,6 +8,7 @@ public class EventsDbContext : DbContext
     public DbSet<Venue> Venues => Set<Venue>();
     public DbSet<Event> Events => Set<Event>();
     public DbSet<TicketType> TicketTypes => Set<TicketType>();
+    public DbSet<Organizer> Organizers => Set<Organizer>();
 
     public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
     {
@@ -66,6 +67,16 @@ public class EventsDbContext : DbContext
                 .HasColumnType("xid")
                 .ValueGeneratedOnAddOrUpdate()
                 .IsConcurrencyToken();
+        });
+
+        modelBuilder.Entity<Organizer>(entity =>
+        {
+            entity.ToTable("organizers");
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Name).IsRequired().HasMaxLength(255);
+            entity.Property(o => o.Email).IsRequired().HasMaxLength(255);
+            entity.Property(o => o.PasswordHash).IsRequired().HasMaxLength(500);
+            entity.HasIndex(o => o.Email).IsUnique();
         });
     }
 }

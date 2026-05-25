@@ -54,6 +54,18 @@ public class OrderRepository : IOrderRepository
         return (items, totalCount);
     }
 
+    public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetByCustomerIdAsync(Guid customerId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Orders.AsNoTracking().Include(o => o.OrderItems).Where(o => o.CustomerId == customerId);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(o => o.PlacedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public void Update(Order order)
     {
         _context.Orders.Update(order);

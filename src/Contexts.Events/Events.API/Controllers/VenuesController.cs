@@ -3,12 +3,14 @@ using Events.Application.Features.Venues.DeleteVenue;
 using Events.Application.Features.Venues.GetAllVenues;
 using Events.Application.Features.Venues.GetVenue;
 using Events.Application.Features.Venues.UpdateVenue;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
 [ApiController]
 [Route("venues")]
+[Authorize(Roles = "Organizer")]
 public class VenuesController : ControllerBase
 {
     private readonly CreateVenueUseCase _createVenueUseCase;

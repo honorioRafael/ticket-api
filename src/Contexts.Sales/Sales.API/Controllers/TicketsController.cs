@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Features.Tickets.ValidateTicket;
 
@@ -5,6 +6,7 @@ namespace Sales.API.Controllers;
 
 [ApiController]
 [Route("tickets")]
+[Authorize(Roles = "Organizer")]
 public class TicketsController : ControllerBase
 {
     private readonly ValidateTicketUseCase _validateTicketUseCase;

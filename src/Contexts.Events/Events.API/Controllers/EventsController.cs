@@ -6,12 +6,14 @@ using Events.Application.Features.Events.GetAllEvents;
 using Events.Application.Features.Events.GetEvent;
 using Events.Application.Features.Events.PublishEvent;
 using Events.Application.Features.Events.UpdateEvent;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
 [ApiController]
 [Route("events")]
+[Authorize(Roles = "Organizer")]
 public class EventsController : ControllerBase
 {
     private readonly CreateEventUseCase _createEventUseCase;
