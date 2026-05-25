@@ -13,11 +13,3 @@ public interface IVenueRepository
     Task<IReadOnlyList<Venue>> GetAllAsync(CancellationToken cancellationToken = default);
     void Update(Venue venue);
 }
-
-public interface IEventRepository
-{
-    Task AddAsync(Event @event, CancellationToken cancellationToken = default);
-    Task<Event?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<Event>> GetAllAsync(CancellationToken cancellationToken = default);
-    void Update(Event @event);
-}
