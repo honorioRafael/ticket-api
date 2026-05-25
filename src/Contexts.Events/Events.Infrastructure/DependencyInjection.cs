@@ -11,7 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddEventsInfrastructure(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<EventsDbContext>(options =>
-            options.UseNpgsql(connectionString, o => 
+            options.UseNpgsql(connectionString, o =>
                 o.MigrationsHistoryTable("__EFMigrationsHistory", "events")));
 
         services.AddScoped<IVenueRepository, VenueRepository>();

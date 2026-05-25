@@ -11,7 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddSalesInfrastructure(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<SalesDbContext>(options =>
-            options.UseNpgsql(connectionString, o => 
+            options.UseNpgsql(connectionString, o =>
                 o.MigrationsHistoryTable("__EFMigrationsHistory", "sales")));
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();

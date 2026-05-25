@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Events.Domain.Repositories;
 using Events.Infrastructure.Contexts;
 

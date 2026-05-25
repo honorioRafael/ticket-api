@@ -1,5 +1,3 @@
-using System;
-
 namespace Events.Domain.Entities;
 
 public class Venue

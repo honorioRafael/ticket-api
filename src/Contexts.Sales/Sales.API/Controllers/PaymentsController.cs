@@ -1,8 +1,5 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Sales.Application.Commands;
-using Sales.Application.UseCases;
+using Sales.Application.Features.Payments.PaymentWebhook;
 
 namespace Sales.API.Controllers;
 

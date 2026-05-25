@@ -1,7 +1,5 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Sales.Application.UseCases;
+using Sales.Application.Features.Tickets.ValidateTicket;
 
 namespace Sales.API.Controllers;
 

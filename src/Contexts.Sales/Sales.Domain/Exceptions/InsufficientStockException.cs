@@ -6,7 +6,7 @@ public class InsufficientStockException : DomainException
 {
     public override string Code => "INSUFFICIENT_STOCK";
 
-    public InsufficientStockException(string message = "Não há estoque disponível suficiente de ingressos.") 
+    public InsufficientStockException(string message = "Não há estoque disponível suficiente de ingressos.")
         : base(message)
     {
     }

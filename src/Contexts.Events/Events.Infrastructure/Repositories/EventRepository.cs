@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Events.Domain.Entities;
 using Events.Domain.Repositories;
 using Events.Infrastructure.Contexts;
@@ -37,8 +33,25 @@ public class EventRepository : IEventRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<(IReadOnlyList<Event> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Events.AsNoTracking().Include(e => e.TicketTypes);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(e => e.StartsAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public void Update(Event @event)
     {
         _context.Events.Update(@event);
+    }
+
+    public void Remove(Event @event)
+    {
+        _context.Events.Remove(@event);
     }
 }

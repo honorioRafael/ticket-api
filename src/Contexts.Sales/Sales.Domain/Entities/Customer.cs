@@ -1,5 +1,3 @@
-using System;
-
 namespace Sales.Domain.Entities;
 
 public class Customer
@@ -21,6 +19,20 @@ public class Customer
             throw new ArgumentException("O documento não pode ser vazio.", nameof(document));
 
         Id = Guid.CreateVersion7();
+        Name = name;
+        Email = email;
+        Document = document;
+    }
+
+    public void Update(string name, string email, string document)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("O email não pode ser vazio.", nameof(email));
+        if (string.IsNullOrWhiteSpace(document))
+            throw new ArgumentException("O documento não pode ser vazio.", nameof(document));
+
         Name = name;
         Email = email;
         Document = document;

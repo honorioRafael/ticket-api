@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 namespace SharedKernel;
 
 public static class EnvLoader
@@ -10,7 +7,7 @@ public static class EnvLoader
         // 1. Procura pelo arquivo .env subindo os diretórios a partir do diretório atual
         var currentDir = Directory.GetCurrentDirectory();
         string? envPath = null;
-        
+
         while (currentDir != null)
         {
             var testPath = Path.Combine(currentDir, ".env");

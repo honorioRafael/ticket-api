@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Events.Domain.Enums;
 using Events.Domain.Exceptions;
 
@@ -40,7 +37,7 @@ public class Event
     {
         if (Status != EventStatus.Draft)
             throw new InvalidStateTransitionException("Não é possível atualizar detalhes do evento a menos que ele esteja em rascunho.");
-        
+
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
         if (endsAt <= startsAt)

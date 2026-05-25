@@ -1,4 +1,3 @@
-using System;
 using Sales.Domain.Enums;
 
 namespace Sales.Domain.Entities;

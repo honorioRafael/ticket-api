@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
 using Sales.Domain.Enums;
@@ -47,8 +42,25 @@ public class OrderRepository : IOrderRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Orders.AsNoTracking().Include(o => o.OrderItems);
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(o => o.PlacedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
     public void Update(Order order)
     {
         _context.Orders.Update(order);
+    }
+
+    public void Remove(Order order)
+    {
+        _context.Orders.Remove(order);
     }
 }

@@ -6,7 +6,7 @@ public class InvalidStateTransitionException : DomainException
 {
     public override string Code => "INVALID_STATE_TRANSITION";
 
-    public InvalidStateTransitionException(string message) 
+    public InvalidStateTransitionException(string message)
         : base(message)
     {
     }

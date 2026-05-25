@@ -1,4 +1,3 @@
-using System;
 using Sales.Domain.Enums;
 using Sales.Domain.Exceptions;
 

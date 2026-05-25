@@ -1,4 +1,3 @@
-using System;
 using Sales.Domain.Exceptions;
 
 namespace Sales.Domain.Entities;

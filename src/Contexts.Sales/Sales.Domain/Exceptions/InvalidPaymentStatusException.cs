@@ -6,7 +6,7 @@ public class InvalidPaymentStatusException : DomainException
 {
     public override string Code => "INVALID_PAYMENT_STATUS";
 
-    public InvalidPaymentStatusException(string message) 
+    public InvalidPaymentStatusException(string message)
         : base(message)
     {
     }

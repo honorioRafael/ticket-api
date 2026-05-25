@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Sales.Domain.Entities;
 
 namespace Sales.Domain.Repositories;

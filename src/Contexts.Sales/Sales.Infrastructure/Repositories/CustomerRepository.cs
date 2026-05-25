@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
 using Sales.Domain.Repositories;
@@ -30,5 +27,27 @@ public class CustomerRepository : ICustomerRepository
     public async Task<Customer?> GetByDocumentAsync(string document, CancellationToken cancellationToken = default)
     {
         return await _context.Customers.SingleOrDefaultAsync(c => c.Document == document, cancellationToken);
+    }
+
+    public async Task<(IReadOnlyList<Customer> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Customers.AsNoTracking();
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderBy(c => c.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return (items, totalCount);
+    }
+
+    public void Update(Customer customer)
+    {
+        _context.Customers.Update(customer);
+    }
+
+    public void Remove(Customer customer)
+    {
+        _context.Customers.Remove(customer);
     }
 }

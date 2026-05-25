@@ -6,7 +6,7 @@ public class InvalidEventDatesException : DomainException
 {
     public override string Code => "INVALID_EVENT_DATES";
 
-    public InvalidEventDatesException(string message = "A data de fim do evento deve ser posterior à data de início.") 
+    public InvalidEventDatesException(string message = "A data de fim do evento deve ser posterior à data de início.")
         : base(message)
     {
     }

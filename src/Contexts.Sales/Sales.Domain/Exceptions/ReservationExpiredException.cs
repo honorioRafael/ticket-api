@@ -6,7 +6,7 @@ public class ReservationExpiredException : DomainException
 {
     public override string Code => "RESERVATION_EXPIRED";
 
-    public ReservationExpiredException(string message = "A reserva expirou.") 
+    public ReservationExpiredException(string message = "A reserva expirou.")
         : base(message)
     {
     }

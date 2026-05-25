@@ -1,10 +1,7 @@
-using System;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using SharedKernel.Exceptions;
+using System.Text.Json;
 
 namespace SharedKernel.Middlewares;
 

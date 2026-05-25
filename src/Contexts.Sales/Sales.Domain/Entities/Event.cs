@@ -1,5 +1,3 @@
-using System;
-
 namespace Sales.Domain.Entities;
 
 public class Event

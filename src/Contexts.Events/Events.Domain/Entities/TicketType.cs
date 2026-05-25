@@ -1,4 +1,3 @@
-using System;
 using Events.Domain.Enums;
 using Events.Domain.Exceptions;
 
