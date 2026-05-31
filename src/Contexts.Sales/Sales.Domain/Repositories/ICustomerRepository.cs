@@ -10,4 +10,5 @@ public interface ICustomerRepository
     Task<(IReadOnlyList<Customer> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     void Update(Customer customer);
     void Remove(Customer customer);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

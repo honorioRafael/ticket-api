@@ -1,4 +1,4 @@
-namespace SharedKernel;
+namespace TicketApi.Common;
 
 public static class EnvLoader
 {

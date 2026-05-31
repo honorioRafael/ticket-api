@@ -8,13 +8,11 @@ namespace Events.Application.Features.Venues.CreateVenue;
 public class CreateVenueUseCase
 {
     private readonly IVenueRepository _venueRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateVenueCommand> _validator;
 
-    public CreateVenueUseCase(IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<CreateVenueCommand> validator)
+    public CreateVenueUseCase(IVenueRepository venueRepository, IValidator<CreateVenueCommand> validator)
     {
         _venueRepository = venueRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
     }
 
@@ -24,7 +22,7 @@ public class CreateVenueUseCase
 
         var venue = new Venue(command.Name, command.Address, command.Capacity);
         await _venueRepository.AddAsync(venue, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _venueRepository.SaveChangesAsync(cancellationToken);
 
         return new VenueDto(venue.Id, venue.Name, venue.Address, venue.Capacity);
     }

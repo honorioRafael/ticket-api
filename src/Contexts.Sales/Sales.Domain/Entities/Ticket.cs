@@ -1,5 +1,5 @@
 using Sales.Domain.Enums;
-using Sales.Domain.Exceptions;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Domain.Entities;
 
@@ -15,7 +15,7 @@ public class Ticket
     public Ticket(Guid orderItemId, string code)
     {
         if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("O código não pode ser vazio.", nameof(code));
+            throw new DomainException("INVALID_CODE", "O código não pode ser vazio.");
 
         Id = Guid.CreateVersion7();
         OrderItemId = orderItemId;
@@ -26,11 +26,11 @@ public class Ticket
     public void Use()
     {
         if (Status == TicketStatus.Used)
-            throw new TicketAlreadyUsedException();
+            throw new DomainException("TICKET_ALREADY_USED", "O ingresso já foi utilizado.");
         if (Status == TicketStatus.Cancelled)
-            throw new TicketCancelledException();
+            throw new DomainException("TICKET_CANCELLED", "O ingresso está cancelado.");
         if (Status != TicketStatus.Active)
-            throw new InvalidOperationException($"Não é possível utilizar o ingresso a partir do status {Status}.");
+            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível utilizar o ingresso a partir do status {Status}.");
 
         Status = TicketStatus.Used;
     }
@@ -38,7 +38,7 @@ public class Ticket
     public void Cancel()
     {
         if (Status != TicketStatus.Active)
-            throw new InvalidOperationException($"Não é possível cancelar o ingresso a partir do status {Status}.");
+            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível cancelar o ingresso a partir do status {Status}.");
 
         Status = TicketStatus.Cancelled;
     }

@@ -12,7 +12,7 @@ using Sales.Infrastructure.Contexts;
 namespace Sales.Infrastructure.Migrations
 {
     [DbContext(typeof(SalesDbContext))]
-    [Migration("20260525022807_InitialSales")]
+    [Migration("20260531172218_InitialSales")]
     partial class InitialSales
     {
         /// <inheritdoc />
@@ -20,11 +20,75 @@ namespace Sales.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("sales")
                 .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Events.Domain.Entities.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("VenueId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("events", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("Events.Domain.Entities.TicketType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("ticket_types", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
 
             modelBuilder.Entity("Sales.Domain.Entities.Customer", b =>
                 {
@@ -52,31 +116,7 @@ namespace Sales.Infrastructure.Migrations
                     b.HasIndex("Document")
                         .IsUnique();
 
-                    b.ToTable("customers", "sales");
-                });
-
-            modelBuilder.Entity("Sales.Domain.Entities.Event", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("EndsAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("StartsAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("events", "events", t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
+                    b.ToTable("customers", (string)null);
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.Order", b =>
@@ -101,7 +141,7 @@ namespace Sales.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("orders", "sales");
+                    b.ToTable("orders", (string)null);
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.OrderItem", b =>
@@ -127,7 +167,7 @@ namespace Sales.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("order_items", "sales");
+                    b.ToTable("order_items", (string)null);
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.Payment", b =>
@@ -156,34 +196,7 @@ namespace Sales.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("payments", "sales");
-                });
-
-            modelBuilder.Entity("Sales.Domain.Entities.Reservation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TicketTypeId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("reservations", "sales");
+                    b.ToTable("payments", (string)null);
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.Ticket", b =>
@@ -209,45 +222,16 @@ namespace Sales.Infrastructure.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("tickets", "sales");
+                    b.ToTable("tickets", (string)null);
                 });
 
-            modelBuilder.Entity("Sales.Domain.Entities.TicketType", b =>
+            modelBuilder.Entity("Events.Domain.Entities.TicketType", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AvailableQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<int>("TotalQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ticket_types", "events", t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
+                    b.HasOne("Events.Domain.Entities.Event", null)
+                        .WithMany("TicketTypes")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.OrderItem", b =>
@@ -257,6 +241,11 @@ namespace Sales.Infrastructure.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Events.Domain.Entities.Event", b =>
+                {
+                    b.Navigation("TicketTypes");
                 });
 
             modelBuilder.Entity("Sales.Domain.Entities.Order", b =>

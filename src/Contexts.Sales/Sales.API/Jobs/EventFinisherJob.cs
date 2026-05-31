@@ -24,7 +24,6 @@ public class EventFinisherJob : BackgroundService
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
-                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
                     var now = DateTime.UtcNow;
                     var endedEvents = await eventRepository.GetPublishedEventsEndingBeforeAsync(now, stoppingToken);
@@ -39,7 +38,7 @@ public class EventFinisherJob : BackgroundService
                             eventRepository.Update(@event);
                         }
 
-                        await unitOfWork.CommitAsync(stoppingToken);
+                        await eventRepository.SaveChangesAsync(stoppingToken);
                         _logger.LogInformation("Eventos ({Count}) marcados como finalizados com sucesso.", endedEvents.Count);
                     }
                 }

@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.API", "src\Contexts.S
 EndProject
 Project("{E53339B6-E3ED-4D10-B77A-A1207D6D04C0}") = "docker-compose", "docker-compose.dcproj", "{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "src\SharedKernel\SharedKernel.csproj", "{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketApi.Common", "src\TicketApi.Common\TicketApi.Common.csproj", "{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

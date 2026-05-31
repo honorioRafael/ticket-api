@@ -15,8 +15,6 @@ public class EventsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("events");
-
         modelBuilder.Entity<Venue>(entity =>
         {
             entity.ToTable("venues");
@@ -59,13 +57,6 @@ public class EventsDbContext : DbContext
                 .WithMany(e => e.TicketTypes)
                 .HasForeignKey(e => e.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // Token de concorrência otimista usando a coluna xmin do sistema do PostgreSQL
-            entity.Property<uint>("Version")
-                .HasColumnName("xmin")
-                .HasColumnType("xid")
-                .ValueGeneratedOnAddOrUpdate()
-                .IsConcurrencyToken();
         });
     }
 }

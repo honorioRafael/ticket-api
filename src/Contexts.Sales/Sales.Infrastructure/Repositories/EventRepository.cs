@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Sales.Domain.Entities;
+using Events.Domain.Entities;
+using Events.Domain.Enums;
 using Sales.Domain.Repositories;
 using Sales.Infrastructure.Contexts;
 
@@ -22,7 +23,7 @@ public class EventRepository : IEventRepository
     public async Task<IReadOnlyList<Event>> GetPublishedEventsEndingBeforeAsync(DateTime now, CancellationToken cancellationToken = default)
     {
         var list = await _context.Events
-            .Where(e => e.Status == "published" && e.EndsAt < now)
+            .Where(e => e.Status == EventStatus.Published && e.EndsAt < now)
             .ToListAsync(cancellationToken);
         return list.AsReadOnly();
     }
@@ -30,5 +31,10 @@ public class EventRepository : IEventRepository
     public void Update(Event @event)
     {
         _context.Events.Update(@event);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

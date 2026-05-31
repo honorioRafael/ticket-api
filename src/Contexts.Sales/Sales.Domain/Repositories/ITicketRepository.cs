@@ -8,4 +8,5 @@ public interface ITicketRepository
     Task AddRangeAsync(IEnumerable<Ticket> tickets, CancellationToken cancellationToken = default);
     Task<Ticket?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     void Update(Ticket ticket);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

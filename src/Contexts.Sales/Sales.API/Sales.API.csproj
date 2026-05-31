@@ -20,7 +20,7 @@
     <ProjectReference Include="..\Sales.Domain\Sales.Domain.csproj" />
     <ProjectReference Include="..\Sales.Application\Sales.Application.csproj" />
     <ProjectReference Include="..\Sales.Infrastructure\Sales.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\..\TicketApi.Common\TicketApi.Common.csproj" />
   </ItemGroup>
 
 </Project>

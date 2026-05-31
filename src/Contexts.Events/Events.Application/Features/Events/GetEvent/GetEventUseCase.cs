@@ -1,7 +1,7 @@
 using AutoMapper;
 using Events.Application.DTOs;
-using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Events.Application.Features.Events.GetEvent;
 
@@ -20,7 +20,7 @@ public class GetEventUseCase
     {
         var @event = await _eventRepository.GetByIdAsync(eventId, cancellationToken);
         if (@event == null)
-            throw new EventNotFoundException();
+            throw new DomainException("EVENT_NOT_FOUND", "Evento não encontrado.");
 
         return _mapper.Map<EventDto>(@event);
     }

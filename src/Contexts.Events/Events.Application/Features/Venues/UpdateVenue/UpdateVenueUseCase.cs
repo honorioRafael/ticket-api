@@ -1,20 +1,18 @@
 using Events.Application.DTOs;
-using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
 using FluentValidation;
+using TicketApi.Common.Exceptions;
 
 namespace Events.Application.Features.Venues.UpdateVenue;
 
 public class UpdateVenueUseCase
 {
     private readonly IVenueRepository _venueRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<UpdateVenueCommand> _validator;
 
-    public UpdateVenueUseCase(IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<UpdateVenueCommand> validator)
+    public UpdateVenueUseCase(IVenueRepository venueRepository, IValidator<UpdateVenueCommand> validator)
     {
         _venueRepository = venueRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
     }
 
@@ -24,11 +22,10 @@ public class UpdateVenueUseCase
 
         var venue = await _venueRepository.GetByIdAsync(command.Id, cancellationToken);
         if (venue == null)
-            throw new VenueNotFoundException();
+            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
 
         venue.Update(command.Name, command.Address, command.Capacity);
-        _venueRepository.Update(venue);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _venueRepository.SaveChangesAsync(cancellationToken);
 
         return new VenueDto(venue.Id, venue.Name, venue.Address, venue.Capacity);
     }

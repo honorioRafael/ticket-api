@@ -54,4 +54,9 @@ public class EventRepository : IEventRepository
     {
         _context.Events.Remove(@event);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

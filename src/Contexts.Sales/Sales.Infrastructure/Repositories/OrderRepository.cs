@@ -27,21 +27,6 @@ public class OrderRepository : IOrderRepository
             .SingleOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Order>> GetExpiredPendingOrdersAsync(DateTime now, CancellationToken cancellationToken = default)
-    {
-        // Pending orders which have active reservations that are expired
-        var expiredOrderIds = await _context.Reservations
-            .Where(r => r.Status == ReservationStatus.Active && r.ExpiresAt < now)
-            .Select(r => r.OrderId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
-
-        return await _context.Orders
-            .Include(o => o.OrderItems)
-            .Where(o => o.Status == OrderStatus.Pending && expiredOrderIds.Contains(o.Id))
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = _context.Orders.AsNoTracking().Include(o => o.OrderItems);
@@ -62,5 +47,10 @@ public class OrderRepository : IOrderRepository
     public void Remove(Order order)
     {
         _context.Orders.Remove(order);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

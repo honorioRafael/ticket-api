@@ -1,6 +1,6 @@
 using Events.Application.DTOs;
 using Events.Domain.Repositories;
-using SharedKernel.Models;
+using TicketApi.Common.Models;
 
 namespace Events.Application.Features.Venues.GetAllVenues;
 

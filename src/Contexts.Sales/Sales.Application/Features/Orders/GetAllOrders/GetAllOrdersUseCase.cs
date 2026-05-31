@@ -1,7 +1,7 @@
 using AutoMapper;
 using Sales.Application.DTOs;
 using Sales.Domain.Repositories;
-using SharedKernel.Models;
+using TicketApi.Common.Models;
 
 namespace Sales.Application.Features.Orders.GetAllOrders;
 

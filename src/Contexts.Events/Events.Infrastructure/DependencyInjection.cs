@@ -12,11 +12,10 @@ public static class DependencyInjection
     {
         services.AddDbContext<EventsDbContext>(options =>
             options.UseNpgsql(connectionString, o =>
-                o.MigrationsHistoryTable("__EFMigrationsHistory", "events")));
+                o.MigrationsHistoryTable("__EFMigrationsHistory")));
 
         services.AddScoped<IVenueRepository, VenueRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

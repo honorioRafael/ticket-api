@@ -10,4 +10,5 @@ public interface IEventRepository
     Task<(IReadOnlyList<Event> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     void Update(Event @event);
     void Remove(Event @event);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

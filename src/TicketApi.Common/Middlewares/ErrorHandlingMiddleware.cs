@@ -1,9 +1,9 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using SharedKernel.Exceptions;
+using TicketApi.Common.Exceptions;
 using System.Text.Json;
 
-namespace SharedKernel.Middlewares;
+namespace TicketApi.Common.Middlewares;
 
 public class ErrorHandlingMiddleware
 {

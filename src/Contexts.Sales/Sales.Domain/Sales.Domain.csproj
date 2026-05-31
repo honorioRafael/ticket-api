@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\..\TicketApi.Common\TicketApi.Common.csproj" />
+    <ProjectReference Include="..\..\Contexts.Events\Events.Domain\Events.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

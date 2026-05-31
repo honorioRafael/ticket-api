@@ -1,13 +1,14 @@
 using Events.Application;
 using Events.Infrastructure;
-using SharedKernel.Middlewares;
+using TicketApi.Common.Middlewares;
 
-SharedKernel.EnvLoader.Load();
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+TicketApi.Common.EnvLoader.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+    ?? throw new InvalidOperationException("A string de conexão 'DefaultConnection' não foi encontrada.");
 
 builder.Services.AddEventsApplication();
 builder.Services.AddEventsInfrastructure(connectionString);

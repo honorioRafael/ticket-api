@@ -2,8 +2,9 @@ using AutoMapper;
 using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;
-using Sales.Domain.Exceptions;
+using Events.Domain.Entities;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Orders.CreateOrder;
 
@@ -11,21 +12,17 @@ public class CreateOrderUseCase
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IOrderRepository _orderRepository;
-    private readonly IReservationRepository _reservationRepository;
     private readonly ITicketTypeRepository _ticketTypeRepository;
     private readonly IEventRepository _eventRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateOrderCommand> _validator;
     private readonly IMapper _mapper;
 
-    public CreateOrderUseCase(ICustomerRepository customerRepository, IOrderRepository orderRepository, IReservationRepository reservationRepository, ITicketTypeRepository ticketTypeRepository, IEventRepository eventRepository, IUnitOfWork unitOfWork, IValidator<CreateOrderCommand> validator, IMapper mapper)
+    public CreateOrderUseCase(ICustomerRepository customerRepository, IOrderRepository orderRepository, ITicketTypeRepository ticketTypeRepository, IEventRepository eventRepository, IValidator<CreateOrderCommand> validator, IMapper mapper)
     {
         _customerRepository = customerRepository;
         _orderRepository = orderRepository;
-        _reservationRepository = reservationRepository;
         _ticketTypeRepository = ticketTypeRepository;
         _eventRepository = eventRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
         _mapper = mapper;
     }
@@ -36,7 +33,7 @@ public class CreateOrderUseCase
 
         var customer = await _customerRepository.GetByIdAsync(command.CustomerId, cancellationToken);
         if (customer == null)
-            throw new CustomerNotFoundException();
+            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
 
         var orderItems = new List<(Guid TicketTypeId, decimal UnitPrice, int Quantity)>();
         var ticketTypesToUpdate = new List<(TicketType TicketType, int Quantity)>();
@@ -47,14 +44,16 @@ public class CreateOrderUseCase
         {
             var ticketType = await _ticketTypeRepository.GetByIdAsync(item.TicketTypeId, cancellationToken);
             if (ticketType == null)
-                throw new InsufficientStockException($"Tipo de ingresso {item.TicketTypeId} não encontrado.");
+                throw new DomainException("TICKET_TYPE_NOT_FOUND", $"Tipo de ingresso {item.TicketTypeId} não encontrado.");
 
             var @event = await _eventRepository.GetByIdAsync(ticketType.EventId, cancellationToken);
             if (@event == null || !@event.IsActive(now))
-                throw new EventNotActiveException();
+                throw new DomainException("EVENT_NOT_ACTIVE", "O evento não está ativo para vendas.");
 
-            // This will throw InsufficientStockException if stock < item.Quantity
-            ticketType.DecrementStock(item.Quantity);
+            if (ticketType.AvailableQuantity < item.Quantity)
+                throw new DomainException("INSUFFICIENT_STOCK", "Estoque de ingressos insuficiente.");
+
+            ticketType.DecrementAvailableQuantity(item.Quantity);
 
             orderItems.Add((ticketType.Id, ticketType.Price, item.Quantity));
             ticketTypesToUpdate.Add((ticketType, item.Quantity));
@@ -64,14 +63,7 @@ public class CreateOrderUseCase
 
         await _orderRepository.AddAsync(order, cancellationToken);
 
-        foreach (var (ticketType, quantity) in ticketTypesToUpdate)
-        {
-            var reservation = new Reservation(order.Id, ticketType.Id, quantity, order.PlacedAt);
-            await _reservationRepository.AddAsync(reservation, cancellationToken);
-            _ticketTypeRepository.Update(ticketType);
-        }
-
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _orderRepository.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<OrderDto>(order);
     }

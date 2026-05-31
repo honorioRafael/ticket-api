@@ -1,6 +1,6 @@
 using Events.Application.DTOs;
-using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Events.Application.Features.Venues.GetVenue;
 
@@ -17,7 +17,7 @@ public class GetVenueUseCase
     {
         var venue = await _venueRepository.GetByIdAsync(venueId, cancellationToken);
         if (venue == null)
-            throw new VenueNotFoundException();
+            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
 
         return new VenueDto(venue.Id, venue.Name, venue.Address, venue.Capacity);
     }

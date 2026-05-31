@@ -1,3 +1,5 @@
+using TicketApi.Common.Exceptions;
+
 namespace Sales.Domain.Entities;
 
 public class Customer
@@ -12,11 +14,11 @@ public class Customer
     public Customer(string name, string email, string document)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
+            throw new DomainException("INVALID_NAME", "O nome não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("O email não pode ser vazio.", nameof(email));
+            throw new DomainException("INVALID_EMAIL", "O email não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(document))
-            throw new ArgumentException("O documento não pode ser vazio.", nameof(document));
+            throw new DomainException("INVALID_DOCUMENT", "O documento não pode ser vazio.");
 
         Id = Guid.CreateVersion7();
         Name = name;
@@ -27,11 +29,11 @@ public class Customer
     public void Update(string name, string email, string document)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
+            throw new DomainException("INVALID_NAME", "O nome não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("O email não pode ser vazio.", nameof(email));
+            throw new DomainException("INVALID_EMAIL", "O email não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(document))
-            throw new ArgumentException("O documento não pode ser vazio.", nameof(document));
+            throw new DomainException("INVALID_DOCUMENT", "O documento não pode ser vazio.");
 
         Name = name;
         Email = email;

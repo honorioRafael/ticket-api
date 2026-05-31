@@ -1,26 +1,24 @@
-using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Customers.DeleteCustomer;
 
 public class DeleteCustomerUseCase
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCustomerUseCase(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+    public DeleteCustomerUseCase(ICustomerRepository customerRepository)
     {
         _customerRepository = customerRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task ExecuteAsync(Guid customerId, CancellationToken cancellationToken = default)
     {
         var customer = await _customerRepository.GetByIdAsync(customerId, cancellationToken);
         if (customer == null)
-            throw new CustomerNotFoundException();
+            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
 
         _customerRepository.Remove(customer);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _customerRepository.SaveChangesAsync(cancellationToken);
     }
 }

@@ -2,10 +2,10 @@
 
 Este projeto consiste em um sistema de venda de ingressos construído com **.NET 10** utilizando as práticas de **DDD (Domain-Driven Design)**, **Arquitetura Hexagonal (Ports & Adapters)**, **EF Core** e **PostgreSQL**.
 
-A solução é composta por dois contextos delimitados (Bounded Contexts) independentes e uma biblioteca de kernel compartilhado (SharedKernel):
+A solução é composta por dois contextos delimitados (Bounded Contexts) independentes e uma biblioteca compartilhada (TicketApi.Common):
 1. **Events (Microserviço 1)**: Responsável pela administração de locais (venues), ciclo de vida dos eventos e tipos de ingresso.
-2. **Sales (Microserviço 2)**: Responsável pela criação de pedidos, reservas temporárias de estoque (concorrência controlada por `xmin` no PostgreSQL), confirmação de pagamentos, validação de ingressos e controle de expiração.
-3. **SharedKernel (Compartilhado)**: Contém classes base comuns, como a exceção de domínio base `DomainException` e o middleware global de tratamento de erros `ErrorHandlingMiddleware`.
+2. **Sales (Microserviço 2)**: Responsável pela criação de pedidos, confirmação de pagamentos, validação de ingressos e controle de expiração.
+3. **TicketApi.Common (Compartilhado)**: Contém classes base comuns, como a exceção de domínio base `DomainException` e o middleware global de tratamento de erros `ErrorHandlingMiddleware`.
 
 ---
 
@@ -13,7 +13,7 @@ A solução é composta por dois contextos delimitados (Bounded Contexts) indepe
 
 ```
 src/
-├── SharedKernel/             (Class Lib - Componentes Compartilhados)
+├── TicketApi.Common/         (Class Lib - Componentes Compartilhados)
 │
 ├── Contexts.Events/
 │   ├── Events.API/           (Web API - Entrypoint da API de Eventos)
@@ -33,7 +33,7 @@ Antes de executar o projeto, copie o arquivo de exemplo de ambiente `.env.exampl
 ```bash
 cp .env.example .env
 ```
-Este arquivo `.env` contém as configurações de host, porta, credenciais e nome do banco de dados PostgreSQL. Ele é ignorado pelo Git para proteger credenciais e é carregado dinamicamente tanto pelo Docker Compose quanto localmente pela aplicação (através do componente `EnvLoader` no `SharedKernel`).
+Este arquivo `.env` contém as configurações de host, porta, credenciais e nome do banco de dados PostgreSQL. Ele é ignorado pelo Git para proteger credenciais e é carregado dinamicamente tanto pelo Docker Compose quanto localmente pela aplicação (através do componente `EnvLoader` no `TicketApi.Common`).
 
 ---
 

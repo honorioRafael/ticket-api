@@ -10,4 +10,5 @@ public interface IVenueRepository
     Task<(IReadOnlyList<Venue> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
     void Update(Venue venue);
     void Remove(Venue venue);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

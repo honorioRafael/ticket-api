@@ -1,7 +1,7 @@
 using AutoMapper;
 using Sales.Application.DTOs;
-using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Orders.GetOrder;
 
@@ -20,7 +20,7 @@ public class GetOrderUseCase
     {
         var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if (order == null)
-            throw new OrderNotFoundException();
+            throw new DomainException("ORDER_NOT_FOUND", "Pedido não encontrado.");
 
         return _mapper.Map<OrderDto>(order);
     }

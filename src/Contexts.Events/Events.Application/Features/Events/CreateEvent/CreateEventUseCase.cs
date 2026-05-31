@@ -1,9 +1,9 @@
 using AutoMapper;
 using Events.Application.DTOs;
 using Events.Domain.Entities;
-using Events.Domain.Exceptions;
 using Events.Domain.Repositories;
 using FluentValidation;
+using TicketApi.Common.Exceptions;
 
 namespace Events.Application.Features.Events.CreateEvent;
 
@@ -11,15 +11,13 @@ public class CreateEventUseCase
 {
     private readonly IEventRepository _eventRepository;
     private readonly IVenueRepository _venueRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateEventCommand> _validator;
     private readonly IMapper _mapper;
 
-    public CreateEventUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IUnitOfWork unitOfWork, IValidator<CreateEventCommand> validator, IMapper mapper)
+    public CreateEventUseCase(IEventRepository eventRepository, IVenueRepository venueRepository, IValidator<CreateEventCommand> validator, IMapper mapper)
     {
         _eventRepository = eventRepository;
         _venueRepository = venueRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
         _mapper = mapper;
     }
@@ -30,11 +28,11 @@ public class CreateEventUseCase
 
         var venue = await _venueRepository.GetByIdAsync(command.VenueId, cancellationToken);
         if (venue == null)
-            throw new VenueNotFoundException();
+            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
 
         var @event = new Event(command.Name, command.StartsAt, command.EndsAt, command.VenueId);
         await _eventRepository.AddAsync(@event, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _eventRepository.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<EventDto>(@event);
     }

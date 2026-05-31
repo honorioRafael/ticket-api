@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Infrastructure.Migrations
 {
     [DbContext(typeof(EventsDbContext))]
-    [Migration("20260525013326_InitialEvents")]
+    [Migration("20260531172159_InitialEvents")]
     partial class InitialEvents
     {
         /// <inheritdoc />
@@ -20,7 +20,6 @@ namespace Events.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("events")
                 .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -54,7 +53,7 @@ namespace Events.Infrastructure.Migrations
 
                     b.HasIndex("VenueId");
 
-                    b.ToTable("events", "events");
+                    b.ToTable("events", (string)null);
                 });
 
             modelBuilder.Entity("Events.Domain.Entities.TicketType", b =>
@@ -81,17 +80,11 @@ namespace Events.Infrastructure.Migrations
                     b.Property<int>("TotalQuantity")
                         .HasColumnType("integer");
 
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("ticket_types", "events");
+                    b.ToTable("ticket_types", (string)null);
                 });
 
             modelBuilder.Entity("Events.Domain.Entities.Venue", b =>
@@ -115,7 +108,7 @@ namespace Events.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("venues", "events");
+                    b.ToTable("venues", (string)null);
                 });
 
             modelBuilder.Entity("Events.Domain.Entities.Event", b =>

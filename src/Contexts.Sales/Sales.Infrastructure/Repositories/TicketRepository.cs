@@ -33,4 +33,9 @@ public class TicketRepository : ITicketRepository
     {
         _context.Tickets.Update(ticket);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

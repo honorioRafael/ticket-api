@@ -1,29 +1,26 @@
 using FluentValidation;
 using Sales.Domain.Entities;
+using Events.Domain.Entities;
 using Sales.Domain.Enums;
-using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Payments.PaymentWebhook;
 
 public class PaymentWebhookUseCase
 {
     private readonly IOrderRepository _orderRepository;
-    private readonly IReservationRepository _reservationRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly ITicketRepository _ticketRepository;
     private readonly ITicketTypeRepository _ticketTypeRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<PaymentWebhookCommand> _validator;
 
-    public PaymentWebhookUseCase(IOrderRepository orderRepository, IReservationRepository reservationRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ITicketTypeRepository ticketTypeRepository, IUnitOfWork unitOfWork, IValidator<PaymentWebhookCommand> validator)
+    public PaymentWebhookUseCase(IOrderRepository orderRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ITicketTypeRepository ticketTypeRepository, IValidator<PaymentWebhookCommand> validator)
     {
         _orderRepository = orderRepository;
-        _reservationRepository = reservationRepository;
         _paymentRepository = paymentRepository;
         _ticketRepository = ticketRepository;
         _ticketTypeRepository = ticketTypeRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
     }
 
@@ -33,64 +30,41 @@ public class PaymentWebhookUseCase
 
         var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
         if (order == null)
-            throw new OrderNotFoundException();
+            throw new DomainException("ORDER_NOT_FOUND", "Pedido não encontrado.");
 
+        // Se o pedido não estiver pendente, o pagamento já foi processado ou o pedido foi cancelado.
         if (order.Status != OrderStatus.Pending)
         {
             return;
         }
 
-        var reservations = await _reservationRepository.GetActiveReservationsByOrderIdAsync(order.Id, cancellationToken);
+        // Realiza o parse do status de pagamento vindo no webhook.
+        if (!Enum.TryParse<PaymentStatus>(command.Status, true, out var paymentStatus) ||
+            (paymentStatus != PaymentStatus.Paid && paymentStatus != PaymentStatus.Failed))
+        {
+            throw new DomainException("INVALID_PAYMENT_STATUS", "Status de pagamento inválido. Apenas 'paid' ou 'failed' são aceitos.");
+        }
 
+        // Realiza o parse do método de pagamento.
         var methodCleaned = command.Method.Replace("_", "");
         if (!Enum.TryParse<PaymentMethod>(methodCleaned, true, out var paymentMethod))
         {
-            throw new ArgumentException("Método de pagamento inválido.", nameof(command.Method));
+            throw new DomainException("INVALID_PAYMENT_METHOD", "Método de pagamento inválido.");
         }
 
-        if (command.Status.Equals("paid", StringComparison.OrdinalIgnoreCase))
+        var payment = new Payment(order.Id, paymentMethod, order.TotalAmount);
+
+        if (paymentStatus == PaymentStatus.Paid)
         {
-            var now = DateTime.UtcNow;
-            if (!reservations.Any() || reservations.Any(r => r.ExpiresAt < now))
-            {
-                order.Cancel();
-                foreach (var res in reservations)
-                {
-                    res.Expire();
-                    _reservationRepository.Update(res);
-
-                    var ticketType = await _ticketTypeRepository.GetByIdAsync(res.TicketTypeId, cancellationToken);
-                    if (ticketType != null)
-                    {
-                        ticketType.RestoreStock(res.Quantity);
-                        _ticketTypeRepository.Update(ticketType);
-                    }
-                }
-
-                var paymentFailed = new Payment(order.Id, paymentMethod, order.TotalAmount);
-                paymentFailed.Fail();
-                await _paymentRepository.AddAsync(paymentFailed, cancellationToken);
-                _orderRepository.Update(order);
-                await _unitOfWork.CommitAsync(cancellationToken);
-                throw new ReservationExpiredException("A reserva expirou. Pagamento marcado como falho.");
-            }
-
-            var payment = new Payment(order.Id, paymentMethod, order.TotalAmount);
             payment.Pay();
-
             order.Confirm();
-            foreach (var reservation in reservations)
-            {
-                reservation.Confirm();
-                _reservationRepository.Update(reservation);
-            }
 
             var tickets = new List<Ticket>();
             foreach (var item in order.OrderItems)
             {
                 for (int i = 0; i < item.Quantity; i++)
                 {
-                    var ticketCode = $"TKT-{Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper()}";
+                    var ticketCode = $"TKT-{Guid.CreateVersion7().ToString("N").Substring(0, 12).ToUpper()}";
                     var ticket = new Ticket(item.Id, ticketCode);
                     tickets.Add(ticket);
                 }
@@ -99,29 +73,23 @@ public class PaymentWebhookUseCase
             await _paymentRepository.AddAsync(payment, cancellationToken);
             await _ticketRepository.AddRangeAsync(tickets, cancellationToken);
         }
-        else
+        else // paymentStatus == PaymentStatus.Failed
         {
-            var payment = new Payment(order.Id, paymentMethod, order.TotalAmount);
             payment.Fail();
-
             order.Cancel();
-            foreach (var reservation in reservations)
-            {
-                reservation.Cancel();
-                _reservationRepository.Update(reservation);
 
-                var ticketType = await _ticketTypeRepository.GetByIdAsync(reservation.TicketTypeId, cancellationToken);
+            foreach (var item in order.OrderItems)
+            {
+                var ticketType = await _ticketTypeRepository.GetByIdAsync(item.TicketTypeId, cancellationToken);
                 if (ticketType != null)
                 {
-                    ticketType.RestoreStock(reservation.Quantity);
-                    _ticketTypeRepository.Update(ticketType);
+                    ticketType.IncrementAvailableQuantity(item.Quantity);
                 }
             }
 
             await _paymentRepository.AddAsync(payment, cancellationToken);
         }
 
-        _orderRepository.Update(order);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _orderRepository.SaveChangesAsync(cancellationToken);
     }
 }

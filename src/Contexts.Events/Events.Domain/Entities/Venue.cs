@@ -1,3 +1,5 @@
+using TicketApi.Common.Exceptions;
+
 namespace Events.Domain.Entities;
 
 public class Venue
@@ -12,11 +14,11 @@ public class Venue
     public Venue(string name, string address, int capacity)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
+            throw new DomainException("INVALID_NAME", "O nome do local não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(address))
-            throw new ArgumentException("O endereço não pode ser vazio.", nameof(address));
+            throw new DomainException("INVALID_ADDRESS", "O endereço do local não pode ser vazio.");
         if (capacity <= 0)
-            throw new ArgumentException("A capacidade deve ser maior que zero.", nameof(capacity));
+            throw new DomainException("INVALID_CAPACITY", "A capacidade do local deve ser maior que zero.");
 
         Id = Guid.CreateVersion7();
         Name = name;
@@ -27,11 +29,11 @@ public class Venue
     public void Update(string name, string address, int capacity)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("O nome não pode ser vazio.", nameof(name));
+            throw new DomainException("INVALID_NAME", "O nome do local não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(address))
-            throw new ArgumentException("O endereço não pode ser vazio.", nameof(address));
+            throw new DomainException("INVALID_ADDRESS", "O endereço do local não pode ser vazio.");
         if (capacity <= 0)
-            throw new ArgumentException("A capacidade deve ser maior que zero.", nameof(capacity));
+            throw new DomainException("INVALID_CAPACITY", "A capacidade do local deve ser maior que zero.");
 
         Name = name;
         Address = address;

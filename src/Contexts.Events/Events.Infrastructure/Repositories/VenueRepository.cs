@@ -50,4 +50,9 @@ public class VenueRepository : IVenueRepository
     {
         _context.Venues.Remove(venue);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

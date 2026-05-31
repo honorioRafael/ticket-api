@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Sales.Domain.Entities;
+using Events.Domain.Entities;
 using Sales.Domain.Repositories;
 using Sales.Infrastructure.Contexts;
 
@@ -22,5 +22,10 @@ public class TicketTypeRepository : ITicketTypeRepository
     public void Update(TicketType ticketType)
     {
         _context.TicketTypes.Update(ticketType);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

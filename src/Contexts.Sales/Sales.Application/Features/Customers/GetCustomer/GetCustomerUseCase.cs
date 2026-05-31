@@ -1,6 +1,6 @@
 using Sales.Application.DTOs;
-using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Customers.GetCustomer;
 
@@ -17,7 +17,7 @@ public class GetCustomerUseCase
     {
         var customer = await _customerRepository.GetByIdAsync(customerId, cancellationToken);
         if (customer == null)
-            throw new CustomerNotFoundException();
+            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
 
         return new CustomerDto(customer.Id, customer.Name, customer.Email, customer.Document);
     }

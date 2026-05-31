@@ -1,32 +1,29 @@
 using Sales.Application.DTOs;
-using Sales.Domain.Exceptions;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Tickets.ValidateTicket;
 
 public class ValidateTicketUseCase
 {
     private readonly ITicketRepository _ticketRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public ValidateTicketUseCase(ITicketRepository ticketRepository, IUnitOfWork unitOfWork)
+    public ValidateTicketUseCase(ITicketRepository ticketRepository)
     {
         _ticketRepository = ticketRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<TicketDto> ExecuteAsync(string code, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("O código do ingresso não pode ser vazio.", nameof(code));
+            throw new DomainException("INVALID_CODE", "O código do ingresso não pode ser vazio.");
 
         var ticket = await _ticketRepository.GetByCodeAsync(code, cancellationToken);
         if (ticket == null)
-            throw new TicketNotFoundException();
+            throw new DomainException("TICKET_NOT_FOUND", "Ingresso não encontrado.");
 
         ticket.Use();
-        _ticketRepository.Update(ticket);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _ticketRepository.SaveChangesAsync(cancellationToken);
 
         return new TicketDto(
             ticket.Id,

@@ -33,4 +33,9 @@ public class PaymentRepository : IPaymentRepository
     {
         _context.Payments.Update(payment);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

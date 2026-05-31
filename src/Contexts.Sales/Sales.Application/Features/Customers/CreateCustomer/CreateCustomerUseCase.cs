@@ -8,13 +8,11 @@ namespace Sales.Application.Features.Customers.CreateCustomer;
 public class CreateCustomerUseCase
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateCustomerCommand> _validator;
 
-    public CreateCustomerUseCase(ICustomerRepository customerRepository, IUnitOfWork unitOfWork, IValidator<CreateCustomerCommand> validator)
+    public CreateCustomerUseCase(ICustomerRepository customerRepository, IValidator<CreateCustomerCommand> validator)
     {
         _customerRepository = customerRepository;
-        _unitOfWork = unitOfWork;
         _validator = validator;
     }
 
@@ -30,7 +28,7 @@ public class CreateCustomerUseCase
 
         var customer = new Customer(command.Name, command.Email, command.Document);
         await _customerRepository.AddAsync(customer, cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        await _customerRepository.SaveChangesAsync(cancellationToken);
 
         return new CustomerDto(customer.Id, customer.Name, customer.Email, customer.Document);
     }
