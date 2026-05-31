@@ -5,7 +5,6 @@ public record EventDto(
     string Name,
     DateTime StartsAt,
     DateTime EndsAt,
-    string Status,
     Guid VenueId,
     IReadOnlyCollection<TicketTypeDto> TicketTypes
 );

@@ -22,7 +22,7 @@ public class UpdateCustomerUseCase
 
         var customer = await _customerRepository.GetByIdAsync(command.Id, cancellationToken);
         if (customer == null)
-            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Cliente não encontrado.");
 
         customer.Update(command.Name, command.Email, command.Document);
         await _customerRepository.SaveChangesAsync(cancellationToken);

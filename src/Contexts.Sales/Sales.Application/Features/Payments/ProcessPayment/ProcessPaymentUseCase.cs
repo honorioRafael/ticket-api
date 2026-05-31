@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;
@@ -28,16 +29,16 @@ public class ProcessPaymentUseCase
 
         var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
         if (order == null)
-            throw new DomainException("ORDER_NOT_FOUND", "Pedido não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 
         if (order.Status != OrderStatus.Pending)
-            throw new DomainException("INVALID_ORDER_STATUS", "O pagamento só pode ser processado para pedidos pendentes.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "O pagamento só pode ser processado para pedidos pendentes.");
 
         // Realiza o parse do método de pagamento.
         var methodCleaned = command.Method.Replace("_", "");
         if (!Enum.TryParse<PaymentMethod>(methodCleaned, true, out var paymentMethod))
         {
-            throw new DomainException("INVALID_PAYMENT_METHOD", "Método de pagamento inválido.");
+            throw new DomainException(DomainErrorCode.ValidationError, "Método de pagamento inválido.");
         }
 
         var payment = new Payment(order.Id, paymentMethod, order.TotalAmount);
@@ -67,7 +68,8 @@ public class ProcessPaymentUseCase
             command.Method.ToLower(),
             payment.Status.ToString().ToLower(),
             payment.Amount,
-            payment.PaidAt
+            payment.PaidAt,
+            tickets.Select(t => t.Code).ToList()
         );
     }
 }

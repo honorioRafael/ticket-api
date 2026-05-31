@@ -16,7 +16,7 @@ public class DeleteEventUseCase
     {
         var @event = await _eventRepository.GetByIdAsync(eventId, cancellationToken);
         if (@event == null)
-            throw new DomainException("EVENT_NOT_FOUND", "Evento não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Evento não encontrado.");
 
         _eventRepository.Remove(@event);
         await _eventRepository.SaveChangesAsync(cancellationToken);

@@ -16,7 +16,7 @@ public class DeleteVenueUseCase
     {
         var venue = await _venueRepository.GetByIdAsync(venueId, cancellationToken);
         if (venue == null)
-            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Local não encontrado.");
 
         _venueRepository.Remove(venue);
         await _venueRepository.SaveChangesAsync(cancellationToken);

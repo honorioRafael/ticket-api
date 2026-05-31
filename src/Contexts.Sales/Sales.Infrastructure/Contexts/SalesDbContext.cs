@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
 using Events.Domain.Entities;
+using Sales.Domain.ValueObjects;
+using Events.Domain.ValueObjects;
 
 namespace Sales.Infrastructure.Contexts;
 
@@ -25,8 +27,18 @@ public class SalesDbContext : DbContext
             entity.ToTable("customers");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.Document).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Email)
+                .HasConversion(
+                    email => email.Value,
+                    value => new Email(value))
+                .IsRequired()
+                .HasMaxLength(255);
+            entity.Property(e => e.Document)
+                .HasConversion(
+                    doc => doc.Value,
+                    value => new Document(value))
+                .IsRequired()
+                .HasMaxLength(50);
             entity.HasIndex(e => e.Document).IsUnique();
         });
 
@@ -67,7 +79,17 @@ public class SalesDbContext : DbContext
             entity.Property(e => e.Code).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Status).IsRequired().HasConversion<string>();
             entity.HasIndex(e => e.Code).IsUnique();
+
+            entity.HasOne<OrderItem>()
+                .WithMany(i => i.Tickets)
+                .HasForeignKey(e => e.OrderItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<OrderItem>()
+            .Navigation(i => i.Tickets)
+            .HasField("_tickets")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         modelBuilder.Entity<Payment>(entity =>
         {
@@ -95,9 +117,11 @@ public class SalesDbContext : DbContext
         {
             entity.ToTable("events", t => t.ExcludeFromMigrations());
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Status).IsRequired().HasConversion<string>();
-            entity.Property(e => e.StartsAt).IsRequired();
-            entity.Property(e => e.EndsAt).IsRequired();
+            entity.OwnsOne(e => e.Period, period =>
+            {
+                period.Property(p => p.Start).HasColumnName("StartsAt").IsRequired();
+                period.Property(p => p.End).HasColumnName("EndsAt").IsRequired();
+            });
         });
     }
 }

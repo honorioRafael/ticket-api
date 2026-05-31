@@ -14,11 +14,11 @@ public class Venue
     public Venue(string name, string address, int capacity)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("INVALID_NAME", "O nome do local não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O nome do local não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(address))
-            throw new DomainException("INVALID_ADDRESS", "O endereço do local não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O endereço do local não pode ser vazio.");
         if (capacity <= 0)
-            throw new DomainException("INVALID_CAPACITY", "A capacidade do local deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A capacidade do local deve ser maior que zero.");
 
         Id = Guid.CreateVersion7();
         Name = name;
@@ -29,11 +29,11 @@ public class Venue
     public void Update(string name, string address, int capacity)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("INVALID_NAME", "O nome do local não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O nome do local não pode ser vazio.");
         if (string.IsNullOrWhiteSpace(address))
-            throw new DomainException("INVALID_ADDRESS", "O endereço do local não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O endereço do local não pode ser vazio.");
         if (capacity <= 0)
-            throw new DomainException("INVALID_CAPACITY", "A capacidade do local deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A capacidade do local deve ser maior que zero.");
 
         Name = name;
         Address = address;

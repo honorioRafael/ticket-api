@@ -20,7 +20,7 @@ public class GetOrderUseCase
     {
         var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
         if (order == null)
-            throw new DomainException("ORDER_NOT_FOUND", "Pedido não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 
         return _mapper.Map<OrderDto>(order);
     }

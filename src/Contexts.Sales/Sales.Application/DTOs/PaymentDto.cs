@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Sales.Application.DTOs;
 
 public record PaymentDto(
@@ -6,5 +8,6 @@ public record PaymentDto(
     string Method,
     string Status,
     decimal Amount,
-    DateTime? PaidAt
+    DateTime? PaidAt,
+    IReadOnlyList<string> TicketCodes
 );

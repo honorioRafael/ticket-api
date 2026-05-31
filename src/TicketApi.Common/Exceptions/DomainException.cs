@@ -2,9 +2,9 @@ namespace TicketApi.Common.Exceptions;
 
 public class DomainException : Exception
 {
-    public string Code { get; }
+    public DomainErrorCode Code { get; }
 
-    public DomainException(string code, string message) : base(message)
+    public DomainException(DomainErrorCode code, string message) : base(message)
     {
         Code = code;
     }

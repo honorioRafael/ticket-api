@@ -1,4 +1,3 @@
-using Events.Domain.Enums;
 using TicketApi.Common.Exceptions;
 
 namespace Events.Domain.Entities;
@@ -17,11 +16,11 @@ public class TicketType
     public TicketType(Guid eventId, string name, decimal price, int totalQuantity)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("INVALID_NAME", "O nome do tipo de ingresso não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O nome do tipo de ingresso não pode ser vazio.");
         if (price < 0)
-            throw new DomainException("INVALID_PRICE", "O preço não pode ser negativo.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O preço não pode ser negativo.");
         if (totalQuantity <= 0)
-            throw new DomainException("INVALID_QUANTITY", "A quantidade total deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A quantidade total deve ser maior que zero.");
 
         Id = Guid.CreateVersion7();
         EventId = eventId;
@@ -31,21 +30,18 @@ public class TicketType
         AvailableQuantity = totalQuantity;
     }
 
-    public void Update(string name, decimal price, int totalQuantity, EventStatus eventStatus)
+    public void Update(string name, decimal price, int totalQuantity)
     {
-        if (eventStatus != EventStatus.Draft)
-            throw new DomainException("TICKET_TYPE_READ_ONLY", "Não é possível modificar tipos de ingresso de um evento que não esteja em rascunho.");
-
         if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("INVALID_NAME", "O nome do tipo de ingresso não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O nome do tipo de ingresso não pode ser vazio.");
         if (price < 0)
-            throw new DomainException("INVALID_PRICE", "O preço não pode ser negativo.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O preço não pode ser negativo.");
         if (totalQuantity <= 0)
-            throw new DomainException("INVALID_QUANTITY", "A quantidade total deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A quantidade total deve ser maior que zero.");
 
         int soldQuantity = TotalQuantity - AvailableQuantity;
         if (totalQuantity < soldQuantity)
-            throw new DomainException("INVALID_TOTAL_QUANTITY", "A nova quantidade total não pode ser menor que os ingressos já vendidos.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "A nova quantidade total não pode ser menor que os ingressos já vendidos.");
 
         Name = name;
         Price = price;
@@ -56,9 +52,9 @@ public class TicketType
     public void DecrementAvailableQuantity(int quantity)
     {
         if (quantity <= 0)
-            throw new DomainException("INVALID_QUANTITY", "A quantidade a decrementar deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A quantidade a decrementar deve ser maior que zero.");
         if (AvailableQuantity < quantity)
-            throw new DomainException("INSUFFICIENT_TICKETS", "Ingressos disponíveis insuficientes.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "Ingressos disponíveis insuficientes.");
 
         AvailableQuantity -= quantity;
     }
@@ -66,9 +62,9 @@ public class TicketType
     public void IncrementAvailableQuantity(int quantity)
     {
         if (quantity <= 0)
-            throw new DomainException("INVALID_QUANTITY", "A quantidade a incrementar deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "A quantidade a incrementar deve ser maior que zero.");
         if (AvailableQuantity + quantity > TotalQuantity)
-            throw new DomainException("EXCEEDS_TOTAL_QUANTITY", "Não é possível exceder a quantidade total de ingressos.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "Não é possível exceder a quantidade total de ingressos.");
 
         AvailableQuantity += quantity;
     }

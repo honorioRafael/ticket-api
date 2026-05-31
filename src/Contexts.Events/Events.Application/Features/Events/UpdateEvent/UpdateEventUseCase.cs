@@ -27,11 +27,11 @@ public class UpdateEventUseCase
 
         var @event = await _eventRepository.GetByIdAsync(command.Id, cancellationToken);
         if (@event == null)
-            throw new DomainException("EVENT_NOT_FOUND", "Evento não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Evento não encontrado.");
 
         var venue = await _venueRepository.GetByIdAsync(command.VenueId, cancellationToken);
         if (venue == null)
-            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Local não encontrado.");
 
         @event.Update(command.Name, command.StartsAt, command.EndsAt, command.VenueId);
         await _eventRepository.SaveChangesAsync(cancellationToken);

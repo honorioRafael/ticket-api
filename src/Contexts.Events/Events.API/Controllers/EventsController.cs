@@ -1,10 +1,8 @@
-using Events.Application.Features.Events.CancelEvent;
 using Events.Application.Features.Events.CreateEvent;
 using Events.Application.Features.Events.CreateTicketType;
 using Events.Application.Features.Events.DeleteEvent;
 using Events.Application.Features.Events.GetAllEvents;
 using Events.Application.Features.Events.GetEvent;
-using Events.Application.Features.Events.PublishEvent;
 using Events.Application.Features.Events.UpdateEvent;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,10 +18,8 @@ public class EventsController : ControllerBase
     private readonly DeleteEventUseCase _deleteEventUseCase;
     private readonly GetAllEventsUseCase _getAllEventsUseCase;
     private readonly CreateTicketTypeUseCase _createTicketTypeUseCase;
-    private readonly PublishEventUseCase _publishEventUseCase;
-    private readonly CancelEventUseCase _cancelEventUseCase;
 
-    public EventsController(CreateEventUseCase createEventUseCase, GetEventUseCase getEventUseCase, UpdateEventUseCase updateEventUseCase, DeleteEventUseCase deleteEventUseCase, GetAllEventsUseCase getAllEventsUseCase, CreateTicketTypeUseCase createTicketTypeUseCase, PublishEventUseCase publishEventUseCase, CancelEventUseCase cancelEventUseCase)
+    public EventsController(CreateEventUseCase createEventUseCase, GetEventUseCase getEventUseCase, UpdateEventUseCase updateEventUseCase, DeleteEventUseCase deleteEventUseCase, GetAllEventsUseCase getAllEventsUseCase, CreateTicketTypeUseCase createTicketTypeUseCase)
     {
         _createEventUseCase = createEventUseCase;
         _getEventUseCase = getEventUseCase;
@@ -31,8 +27,6 @@ public class EventsController : ControllerBase
         _deleteEventUseCase = deleteEventUseCase;
         _getAllEventsUseCase = getAllEventsUseCase;
         _createTicketTypeUseCase = createTicketTypeUseCase;
-        _publishEventUseCase = publishEventUseCase;
-        _cancelEventUseCase = cancelEventUseCase;
     }
 
     [HttpPost]
@@ -78,20 +72,6 @@ public class EventsController : ControllerBase
         var ticketType = await _createTicketTypeUseCase.ExecuteAsync(command, cancellationToken);
         var location = Url.Action(nameof(GetById), "Events", new { id = eventId }) ?? $"/events/{eventId}";
         return Created(location, ticketType);
-    }
-
-    [HttpPost("{id:guid}/publish")]
-    public async Task<IActionResult> Publish([FromRoute] Guid id, CancellationToken cancellationToken)
-    {
-        await _publishEventUseCase.ExecuteAsync(id, cancellationToken);
-        return NoContent();
-    }
-
-    [HttpPost("{id:guid}/cancel")]
-    public async Task<IActionResult> Cancel([FromRoute] Guid id, CancellationToken cancellationToken)
-    {
-        await _cancelEventUseCase.ExecuteAsync(id, cancellationToken);
-        return NoContent();
     }
 }
 

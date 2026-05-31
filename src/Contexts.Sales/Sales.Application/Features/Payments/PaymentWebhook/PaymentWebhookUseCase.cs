@@ -30,7 +30,7 @@ public class PaymentWebhookUseCase
 
         var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
         if (order == null)
-            throw new DomainException("ORDER_NOT_FOUND", "Pedido não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 
         // Se o pedido não estiver pendente, o pagamento já foi processado ou o pedido foi cancelado.
         if (order.Status != OrderStatus.Pending)
@@ -42,14 +42,14 @@ public class PaymentWebhookUseCase
         if (!Enum.TryParse<PaymentStatus>(command.Status, true, out var paymentStatus) ||
             (paymentStatus != PaymentStatus.Paid && paymentStatus != PaymentStatus.Failed))
         {
-            throw new DomainException("INVALID_PAYMENT_STATUS", "Status de pagamento inválido. Apenas 'paid' ou 'failed' são aceitos.");
+            throw new DomainException(DomainErrorCode.ValidationError, "Status de pagamento inválido. Apenas 'paid' ou 'failed' são aceitos.");
         }
 
         // Realiza o parse do método de pagamento.
         var methodCleaned = command.Method.Replace("_", "");
         if (!Enum.TryParse<PaymentMethod>(methodCleaned, true, out var paymentMethod))
         {
-            throw new DomainException("INVALID_PAYMENT_METHOD", "Método de pagamento inválido.");
+            throw new DomainException(DomainErrorCode.ValidationError, "Método de pagamento inválido.");
         }
 
         var payment = new Payment(order.Id, paymentMethod, order.TotalAmount);

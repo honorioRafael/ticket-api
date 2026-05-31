@@ -29,9 +29,11 @@ public class EventsDbContext : DbContext
             entity.ToTable("events");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.StartsAt).IsRequired();
-            entity.Property(e => e.EndsAt).IsRequired();
-            entity.Property(e => e.Status).IsRequired().HasConversion<string>();
+            entity.OwnsOne(e => e.Period, period =>
+            {
+                period.Property(p => p.Start).HasColumnName("StartsAt").IsRequired();
+                period.Property(p => p.End).HasColumnName("EndsAt").IsRequired();
+            });
             entity.Property(e => e.VenueId).IsRequired();
 
             entity.HasOne<Venue>()

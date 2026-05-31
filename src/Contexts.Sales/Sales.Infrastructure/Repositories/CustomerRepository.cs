@@ -1,3 +1,4 @@
+using Sales.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
 using Sales.Domain.Repositories;
@@ -26,7 +27,8 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Customer?> GetByDocumentAsync(string document, CancellationToken cancellationToken = default)
     {
-        return await _context.Customers.SingleOrDefaultAsync(c => c.Document == document, cancellationToken);
+        var documentVo = new Document(document);
+        return await _context.Customers.SingleOrDefaultAsync(c => c.Document == documentVo, cancellationToken);
     }
 
     public async Task<(IReadOnlyList<Customer> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)

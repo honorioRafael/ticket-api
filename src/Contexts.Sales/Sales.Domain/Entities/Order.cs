@@ -20,7 +20,7 @@ public class Order
     public Order(Guid customerId, IEnumerable<(Guid TicketTypeId, decimal UnitPrice, int Quantity)> items)
     {
         if (items == null || !items.Any())
-            throw new DomainException("INVALID_ITEMS", "O pedido deve conter pelo menos um item.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O pedido deve conter pelo menos um item.");
 
         Id = Guid.CreateVersion7();
         CustomerId = customerId;
@@ -39,7 +39,7 @@ public class Order
     public void Confirm()
     {
         if (Status != OrderStatus.Pending)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível confirmar o pedido a partir do status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível confirmar o pedido a partir do status {Status}.");
 
         Status = OrderStatus.Confirmed;
     }
@@ -47,7 +47,7 @@ public class Order
     public void Cancel()
     {
         if (Status != OrderStatus.Pending)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível cancelar o pedido a partir do status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível cancelar o pedido a partir do status {Status}.");
 
         Status = OrderStatus.Cancelled;
     }

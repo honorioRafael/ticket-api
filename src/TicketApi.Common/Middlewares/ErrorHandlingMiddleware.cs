@@ -39,9 +39,17 @@ public class ErrorHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
 
+        var errorCodeString = exception.Code switch
+        {
+            DomainErrorCode.NotFound => "NOT_FOUND",
+            DomainErrorCode.ValidationError => "VALIDATION_ERROR",
+            DomainErrorCode.RuleViolation => "RULE_VIOLATION",
+            _ => "UNKNOWN_ERROR"
+        };
+
         var result = JsonSerializer.Serialize(new
         {
-            error = exception.Code,
+            error = errorCodeString,
             message = exception.Message
         });
 

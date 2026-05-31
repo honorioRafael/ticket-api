@@ -17,7 +17,7 @@ public class GetVenueUseCase
     {
         var venue = await _venueRepository.GetByIdAsync(venueId, cancellationToken);
         if (venue == null)
-            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Local não encontrado.");
 
         return new VenueDto(venue.Id, venue.Name, venue.Address, venue.Capacity);
     }

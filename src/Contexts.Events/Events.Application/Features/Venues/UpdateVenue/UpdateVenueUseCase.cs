@@ -22,7 +22,7 @@ public class UpdateVenueUseCase
 
         var venue = await _venueRepository.GetByIdAsync(command.Id, cancellationToken);
         if (venue == null)
-            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Local não encontrado.");
 
         venue.Update(command.Name, command.Address, command.Capacity);
         await _venueRepository.SaveChangesAsync(cancellationToken);

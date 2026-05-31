@@ -1,10 +1,8 @@
-using Events.Application.Features.Events.CancelEvent;
 using Events.Application.Features.Events.CreateEvent;
 using Events.Application.Features.Events.CreateTicketType;
 using Events.Application.Features.Events.DeleteEvent;
 using Events.Application.Features.Events.GetAllEvents;
 using Events.Application.Features.Events.GetEvent;
-using Events.Application.Features.Events.PublishEvent;
 using Events.Application.Features.Events.UpdateEvent;
 using Events.Application.Features.Venues.CreateVenue;
 using Events.Application.Features.Venues.DeleteVenue;
@@ -34,8 +32,6 @@ public static class DependencyInjection
         services.AddScoped<UpdateEventUseCase>();
         services.AddScoped<DeleteEventUseCase>();
         services.AddScoped<GetAllEventsUseCase>();
-        services.AddScoped<PublishEventUseCase>();
-        services.AddScoped<CancelEventUseCase>();
         services.AddScoped<CreateTicketTypeUseCase>();
 
         return services;

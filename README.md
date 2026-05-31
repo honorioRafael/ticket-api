@@ -27,19 +27,7 @@ src/
 │   ├── Sales.Domain/        (Class Lib - Modelos de Domínio Puros e Réplicas)
 │   └── Sales.Infrastructure/ (Class Lib - EF Core, Repositórios, Migrations)
 ```
-## Configuração do Ambiente (.env)
-
-A aplicação está configurada para consumir diretamente o banco de dados do **Supabase**. Para isso, copie o arquivo de exemplo de ambiente `.env.example` na raiz do projeto para um novo arquivo chamado `.env`:
-```bash
-cp .env.example .env
-```
-Este arquivo `.env` contém as configurações de host, porta e credenciais do Supabase. **Você deve preencher a variável `DB_PASSWORD` com a senha correta do banco do Supabase.**
-
-O arquivo `.env` é ignorado pelo Git para proteger credenciais e é carregado dinamicamente no processo da aplicação localmente (através do componente `EnvLoader` no `TicketApi.Common`).
-
----
-
-## Como Executar a Aplicação (Locais - Sem Docker)
+## Como Executar a Aplicação
 
 ### Opção A: Pelo Visual Studio (Recomendado)
 Para executar e debugar as duas APIs (`Events.API` e `Sales.API`) simultaneamente:
@@ -70,14 +58,11 @@ Abra duas janelas de terminal na raiz do projeto e execute uma API em cada uma:
 
 ## Portas de Acesso e Swagger
 
-Após iniciar o ambiente Docker, as APIs e o banco estarão disponíveis nas seguintes portas locais:
+Ao iniciar localmente, as APIs estarão disponíveis nas seguintes portas locais:
 * **Events API**: [http://localhost:5001](http://localhost:5001)
   * Swagger UI: [http://localhost:5001/swagger](http://localhost:5001/swagger)
 * **Sales API**: [http://localhost:5002](http://localhost:5002)
   * Swagger UI: [http://localhost:5002/swagger](http://localhost:5002/swagger)
-* **PostgreSQL**: Porta local configurada no `.env` (porta padrão: `5432`). Os esquemas do banco são criados e isolados logicamente:
-  * O microserviço de Eventos utiliza o esquema de banco `events`.
-  * O microserviço de Vendas utiliza o esquema de banco `sales`.
 
 ---
 
@@ -98,8 +83,8 @@ Sempre que fizer alterações nas entidades do domínio, gere uma nova migration
   dotnet ef migrations add NOME_DA_MIGRATION -p src/Contexts.Sales/Sales.Infrastructure/Sales.Infrastructure.csproj -s src/Contexts.Sales/Sales.API/Sales.API.csproj --context SalesDbContext
   ```
 
-### 2. Aplicar Migrations no Banco Local
-Com a leitura automática do `.env` pelo componente `EnvLoader`, as credenciais e o host local do PostgreSQL são carregados automaticamente ao executar os comandos na sua máquina local (Host). Basta rodar os comandos diretamente:
+### 2. Aplicar Migrations no Banco de Dados
+Com as strings de conexão já configuradas nos projetos, você pode executar os comandos para aplicar as migrations diretamente:
 
 * **Atualizar Esquema de Eventos (`events`):**
   ```bash

@@ -43,7 +43,7 @@ public class EventRepository : IEventRepository
         var query = _context.Events.AsNoTracking().Include(e => e.TicketTypes);
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
-            .OrderByDescending(e => e.StartsAt)
+            .OrderByDescending(e => e.Period.Start)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);

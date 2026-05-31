@@ -23,11 +23,11 @@ public class CreateTicketTypeUseCase
 
         var @event = await _eventRepository.GetByIdAsync(command.EventId, cancellationToken);
         if (@event == null)
-            throw new DomainException("EVENT_NOT_FOUND", "Evento não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Evento não encontrado.");
 
         var venue = await _venueRepository.GetByIdAsync(@event.VenueId, cancellationToken);
         if (venue == null)
-            throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Local não encontrado.");
 
         @event.AddTicketType(command.Name, command.Price, command.TotalQuantity, venue);
         var added = @event.TicketTypes.OrderByDescending(t => t.Id).First();

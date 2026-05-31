@@ -17,7 +17,7 @@ public class GetCustomerUseCase
     {
         var customer = await _customerRepository.GetByIdAsync(customerId, cancellationToken);
         if (customer == null)
-            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Cliente não encontrado.");
 
         return new CustomerDto(customer.Id, customer.Name, customer.Email, customer.Document);
     }

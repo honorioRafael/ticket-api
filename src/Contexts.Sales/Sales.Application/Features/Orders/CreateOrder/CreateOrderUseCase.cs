@@ -33,7 +33,7 @@ public class CreateOrderUseCase
 
         var customer = await _customerRepository.GetByIdAsync(command.CustomerId, cancellationToken);
         if (customer == null)
-            throw new DomainException("CUSTOMER_NOT_FOUND", "Cliente não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Cliente não encontrado.");
 
         var orderItems = new List<(Guid TicketTypeId, decimal UnitPrice, int Quantity)>();
         var ticketTypesToUpdate = new List<(TicketType TicketType, int Quantity)>();
@@ -44,14 +44,14 @@ public class CreateOrderUseCase
         {
             var ticketType = await _ticketTypeRepository.GetByIdAsync(item.TicketTypeId, cancellationToken);
             if (ticketType == null)
-                throw new DomainException("TICKET_TYPE_NOT_FOUND", $"Tipo de ingresso {item.TicketTypeId} não encontrado.");
+                throw new DomainException(DomainErrorCode.NotFound, $"Tipo de ingresso {item.TicketTypeId} não encontrado.");
 
             var @event = await _eventRepository.GetByIdAsync(ticketType.EventId, cancellationToken);
             if (@event == null || !@event.IsActive(now))
-                throw new DomainException("EVENT_NOT_ACTIVE", "O evento não está ativo para vendas.");
+                throw new DomainException(DomainErrorCode.RuleViolation, "O evento não está ativo para vendas.");
 
             if (ticketType.AvailableQuantity < item.Quantity)
-                throw new DomainException("INSUFFICIENT_STOCK", "Estoque de ingressos insuficiente.");
+                throw new DomainException(DomainErrorCode.RuleViolation, "Estoque de ingressos insuficiente.");
 
             ticketType.DecrementAvailableQuantity(item.Quantity);
 

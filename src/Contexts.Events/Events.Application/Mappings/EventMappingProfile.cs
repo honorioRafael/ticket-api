@@ -10,6 +10,7 @@ public class EventMappingProfile : Profile
     {
         CreateMap<TicketType, TicketTypeDto>();
         CreateMap<Event, EventDto>()
-            .ForCtorParam("status", opt => opt.MapFrom(src => src.Status.ToString().ToLower()));
+            .ForCtorParam(nameof(EventDto.StartsAt), opt => opt.MapFrom(src => src.Period.Start))
+            .ForCtorParam(nameof(EventDto.EndsAt), opt => opt.MapFrom(src => src.Period.End));
     }
 }

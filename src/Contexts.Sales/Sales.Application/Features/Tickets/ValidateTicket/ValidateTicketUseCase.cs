@@ -16,11 +16,11 @@ public class ValidateTicketUseCase
     public async Task<TicketDto> ExecuteAsync(string code, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(code))
-            throw new DomainException("INVALID_CODE", "O código do ingresso não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O código do ingresso não pode ser vazio.");
 
         var ticket = await _ticketRepository.GetByCodeAsync(code, cancellationToken);
         if (ticket == null)
-            throw new DomainException("TICKET_NOT_FOUND", "Ingresso não encontrado.");
+            throw new DomainException(DomainErrorCode.NotFound, "Ingresso não encontrado.");
 
         ticket.Use();
         await _ticketRepository.SaveChangesAsync(cancellationToken);

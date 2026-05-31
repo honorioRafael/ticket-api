@@ -1,4 +1,3 @@
-using Sales.API.Jobs;
 using Sales.Application;
 using Sales.Infrastructure;
 using TicketApi.Common.Middlewares;
@@ -12,8 +11,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddSalesApplication();
 builder.Services.AddSalesInfrastructure(connectionString);
-
-builder.Services.AddHostedService<EventFinisherJob>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -24,12 +24,15 @@ public class OrderRepository : IOrderRepository
     {
         return await _context.Orders
             .Include(o => o.OrderItems)
+                .ThenInclude(i => i.Tickets)
             .SingleOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
 
     public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var query = _context.Orders.AsNoTracking().Include(o => o.OrderItems);
+        var query = _context.Orders.AsNoTracking()
+            .Include(o => o.OrderItems)
+                .ThenInclude(i => i.Tickets);
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderByDescending(o => o.PlacedAt)

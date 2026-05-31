@@ -15,7 +15,7 @@ public class Ticket
     public Ticket(Guid orderItemId, string code)
     {
         if (string.IsNullOrWhiteSpace(code))
-            throw new DomainException("INVALID_CODE", "O código não pode ser vazio.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O código não pode ser vazio.");
 
         Id = Guid.CreateVersion7();
         OrderItemId = orderItemId;
@@ -26,11 +26,11 @@ public class Ticket
     public void Use()
     {
         if (Status == TicketStatus.Used)
-            throw new DomainException("TICKET_ALREADY_USED", "O ingresso já foi utilizado.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "O ingresso já foi utilizado.");
         if (Status == TicketStatus.Cancelled)
-            throw new DomainException("TICKET_CANCELLED", "O ingresso está cancelado.");
+            throw new DomainException(DomainErrorCode.RuleViolation, "O ingresso está cancelado.");
         if (Status != TicketStatus.Active)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível utilizar o ingresso a partir do status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível utilizar o ingresso a partir do status {Status}.");
 
         Status = TicketStatus.Used;
     }
@@ -38,7 +38,7 @@ public class Ticket
     public void Cancel()
     {
         if (Status != TicketStatus.Active)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível cancelar o ingresso a partir do status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível cancelar o ingresso a partir do status {Status}.");
 
         Status = TicketStatus.Cancelled;
     }

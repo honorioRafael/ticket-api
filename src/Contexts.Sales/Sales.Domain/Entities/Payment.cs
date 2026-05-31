@@ -17,7 +17,7 @@ public class Payment
     public Payment(Guid orderId, PaymentMethod method, decimal amount)
     {
         if (amount <= 0)
-            throw new DomainException("INVALID_AMOUNT", "O valor deve ser maior que zero.");
+            throw new DomainException(DomainErrorCode.ValidationError, "O valor deve ser maior que zero.");
 
         Id = Guid.CreateVersion7();
         OrderId = orderId;
@@ -29,7 +29,7 @@ public class Payment
     public void Pay()
     {
         if (Status != PaymentStatus.Pending)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível processar o pagamento com status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível processar o pagamento com status {Status}.");
 
         Status = PaymentStatus.Paid;
         PaidAt = DateTime.UtcNow;
@@ -38,7 +38,7 @@ public class Payment
     public void Fail()
     {
         if (Status != PaymentStatus.Pending)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível marcar como falho o pagamento com status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível marcar como falho o pagamento com status {Status}.");
 
         Status = PaymentStatus.Failed;
     }
@@ -46,7 +46,7 @@ public class Payment
     public void Refund()
     {
         if (Status != PaymentStatus.Paid)
-            throw new DomainException("INVALID_STATE_TRANSITION", $"Não é possível estornar o pagamento com status {Status}.");
+            throw new DomainException(DomainErrorCode.RuleViolation, $"Não é possível estornar o pagamento com status {Status}.");
 
         Status = PaymentStatus.Refunded;
     }
