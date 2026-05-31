@@ -30,10 +30,10 @@ public class CreateTicketTypeUseCase
             throw new DomainException("VENUE_NOT_FOUND", "Local não encontrado.");
 
         @event.AddTicketType(command.Name, command.Price, command.TotalQuantity, venue);
-        _eventRepository.Update(@event);
+        var added = @event.TicketTypes.OrderByDescending(t => t.Id).First();
+        await _eventRepository.AddTicketTypeAsync(added, cancellationToken);
         await _eventRepository.SaveChangesAsync(cancellationToken);
 
-        var added = @event.TicketTypes.OrderByDescending(t => t.Id).First();
         return new TicketTypeDto(added.Id, added.EventId, added.Name, added.Price, added.TotalQuantity, added.AvailableQuantity);
     }
 }

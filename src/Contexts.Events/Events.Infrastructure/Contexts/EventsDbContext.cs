@@ -38,9 +38,6 @@ public class EventsDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.VenueId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            entity.Metadata.FindNavigation(nameof(Event.TicketTypes))?
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
         });
 
         modelBuilder.Entity<TicketType>(entity =>
@@ -58,5 +55,10 @@ public class EventsDbContext : DbContext
                 .HasForeignKey(e => e.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<Event>()
+            .Navigation(e => e.TicketTypes)
+            .HasField("_ticketTypes")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

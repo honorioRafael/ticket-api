@@ -19,6 +19,11 @@ public class EventRepository : IEventRepository
         await _context.Events.AddAsync(@event, cancellationToken);
     }
 
+    public async Task AddTicketTypeAsync(TicketType ticketType, CancellationToken cancellationToken = default)
+    {
+        await _context.TicketTypes.AddAsync(ticketType, cancellationToken);
+    }
+
     public async Task<Event?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Events

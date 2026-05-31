@@ -10,7 +10,7 @@ public class OrderMappingProfile : Profile
     {
         CreateMap<OrderItem, OrderItemDto>();
         CreateMap<Order, OrderDto>()
-            .ForCtorParam("status", opt => opt.MapFrom(src => src.Status.ToString().ToLower()))
-            .ForCtorParam("items", opt => opt.MapFrom(src => src.OrderItems));
+            .ForCtorParam("Status", opt => opt.MapFrom(src => src.Status.ToString().ToLower()))
+            .ForCtorParam("Items", opt => opt.MapFrom(src => src.OrderItems));
     }
 }
