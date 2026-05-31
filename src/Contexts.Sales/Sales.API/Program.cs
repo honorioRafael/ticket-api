@@ -4,7 +4,6 @@ using Sales.Infrastructure;
 using TicketApi.Common.Middlewares;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-TicketApi.Common.EnvLoader.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

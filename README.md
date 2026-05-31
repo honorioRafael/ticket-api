@@ -29,27 +29,42 @@ src/
 ```
 ## Configuração do Ambiente (.env)
 
-Antes de executar o projeto, copie o arquivo de exemplo de ambiente `.env.example` na raiz do projeto para um novo arquivo chamado `.env`:
+A aplicação está configurada para consumir diretamente o banco de dados do **Supabase**. Para isso, copie o arquivo de exemplo de ambiente `.env.example` na raiz do projeto para um novo arquivo chamado `.env`:
 ```bash
 cp .env.example .env
 ```
-Este arquivo `.env` contém as configurações de host, porta, credenciais e nome do banco de dados PostgreSQL. Ele é ignorado pelo Git para proteger credenciais e é carregado dinamicamente tanto pelo Docker Compose quanto localmente pela aplicação (através do componente `EnvLoader` no `TicketApi.Common`).
+Este arquivo `.env` contém as configurações de host, porta e credenciais do Supabase. **Você deve preencher a variável `DB_PASSWORD` com a senha correta do banco do Supabase.**
+
+O arquivo `.env` é ignorado pelo Git para proteger credenciais e é carregado dinamicamente no processo da aplicação localmente (através do componente `EnvLoader` no `TicketApi.Common`).
 
 ---
 
-## Como Executar a Aplicação
+## Como Executar a Aplicação (Locais - Sem Docker)
 
 ### Opção A: Pelo Visual Studio (Recomendado)
+Para executar e debugar as duas APIs (`Events.API` e `Sales.API`) simultaneamente:
 1. Abra o arquivo de solução `TicketApi.sln` no **Visual Studio 2022** (ou superior).
-2. O Visual Studio identificará o projeto de orquestração `docker-compose`.
-3. Clique com o botão direito sobre o projeto `docker-compose` e selecione **"Definir como Projeto de Inicialização"** (Set as Startup Project).
-4. Pressione **F5** (ou clique em **Iniciar**). O Visual Studio iniciará os contêineres do PostgreSQL e dos microservices, anexará os depuradores automaticamente e abrirá o navegador na página do Swagger da API de Eventos.
+2. Na janela **Gerenciador de Soluções** (Solution Explorer), clique com o botão direito sobre a solução `TicketApi` e selecione **Propriedades** (Properties).
+3. Sob **Propriedades Comuns** (Common Properties), clique em **Projeto de Inicialização** (Startup Project).
+4. Selecione a opção **Vários projetos de inicialização** (Multiple startup projects).
+5. Defina a ação para **Iniciar** (Start) nos seguintes projetos:
+   - `Events.API`
+   - `Sales.API`
+6. Clique em **Aplicar** e **OK**.
+7. Pressione **F5** ou o botão **Iniciar** para rodar ambas as APIs juntas diretamente no Windows.
 
 ### Opção B: Pela Linha de Comando (CLI)
-Certifique-se de que o Docker esteja em execução na sua máquina. Na raiz do projeto, execute:
-```bash
-docker-compose up --build
-```
+Abra duas janelas de terminal na raiz do projeto e execute uma API em cada uma:
+
+* **Para a API de Eventos:**
+  ```bash
+  dotnet run --project src/Contexts.Events/Events.API/Events.API.csproj
+  ```
+
+* **Para a API de Vendas:**
+  ```bash
+  dotnet run --project src/Contexts.Sales/Sales.API/Sales.API.csproj
+  ```
 
 ---
 

@@ -25,8 +25,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.Infrastructure", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.API", "src\Contexts.Sales\Sales.API\Sales.API.csproj", "{1A190784-6658-4B4C-861B-0EC59BD3F7FC}"
 EndProject
-Project("{E53339B6-E3ED-4D10-B77A-A1207D6D04C0}") = "docker-compose", "docker-compose.dcproj", "{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketApi.Common", "src\TicketApi.Common\TicketApi.Common.csproj", "{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}"
 EndProject
 Global
@@ -135,12 +133,6 @@ Global
 		{1A190784-6658-4B4C-861B-0EC59BD3F7FC}.Release|x64.Build.0 = Release|Any CPU
 		{1A190784-6658-4B4C-861B-0EC59BD3F7FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{1A190784-6658-4B4C-861B-0EC59BD3F7FC}.Release|x86.Build.0 = Release|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Release|x64.ActiveCfg = Release|Any CPU
-		{4FEF72B8-8DE0-4740-8A7E-DC8B29C5B2EF}.Release|x86.ActiveCfg = Release|Any CPU
 		{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F970130B-F3A2-4CB8-A071-B6B4E57B4D62}.Debug|x64.ActiveCfg = Debug|Any CPU
