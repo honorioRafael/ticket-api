@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("A string de conexão 'DefaultConnection' não foi encontrada.");
 
 builder.Services.AddSalesApplication();
-builder.Services.AddSalesInfrastructure(connectionString);
+builder.Services.AddSalesInfrastructure(connectionString, builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

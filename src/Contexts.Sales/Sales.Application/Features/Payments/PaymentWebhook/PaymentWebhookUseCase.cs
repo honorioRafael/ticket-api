@@ -3,6 +3,7 @@ using Sales.Domain.Entities;
 using Events.Domain.Entities;
 using Sales.Domain.Enums;
 using Sales.Domain.Repositories;
+using Sales.Domain.Services;
 using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Payments.PaymentWebhook;
@@ -13,14 +14,18 @@ public class PaymentWebhookUseCase
     private readonly IPaymentRepository _paymentRepository;
     private readonly ITicketRepository _ticketRepository;
     private readonly ITicketTypeRepository _ticketTypeRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IEmailQueueService _emailQueue;
     private readonly IValidator<PaymentWebhookCommand> _validator;
 
-    public PaymentWebhookUseCase(IOrderRepository orderRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ITicketTypeRepository ticketTypeRepository, IValidator<PaymentWebhookCommand> validator)
+    public PaymentWebhookUseCase(IOrderRepository orderRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ITicketTypeRepository ticketTypeRepository, ICustomerRepository customerRepository, IEmailQueueService emailQueue, IValidator<PaymentWebhookCommand> validator)
     {
         _orderRepository = orderRepository;
         _paymentRepository = paymentRepository;
         _ticketRepository = ticketRepository;
         _ticketTypeRepository = ticketTypeRepository;
+        _customerRepository = customerRepository;
+        _emailQueue = emailQueue;
         _validator = validator;
     }
 
@@ -72,6 +77,19 @@ public class PaymentWebhookUseCase
 
             await _paymentRepository.AddAsync(payment, cancellationToken);
             await _ticketRepository.AddRangeAsync(tickets, cancellationToken);
+
+            // Publica na fila SQS para envio de e-mail de confirmação
+            var customer = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
+            if (customer != null)
+            {
+                await _emailQueue.PublishAsync(new EmailMessage(
+                    customer.Email.Value,
+                    customer.Name,
+                    order.Id,
+                    order.TotalAmount,
+                    tickets.Count
+                ), cancellationToken);
+            }
         }
         else // paymentStatus == PaymentStatus.Failed
         {

@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Events API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Contexts.Events/Events.API/bin/Debug/net10.0/Events.API.dll",
+      "cwd": "${workspaceFolder}/src/Contexts.Events/Events.API",
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    },
+    {
+      "name": "Sales API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/src/Contexts.Sales/Sales.API/bin/Debug/net10.0/Sales.API.dll",
+      "cwd": "${workspaceFolder}/src/Contexts.Sales/Sales.API",
+      "env": { "ASPNETCORE_ENVIRONMENT": "Development" }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Ambas APIs",
+      "configurations": ["Events API", "Sales API"]
+    }
+  ]
+}
