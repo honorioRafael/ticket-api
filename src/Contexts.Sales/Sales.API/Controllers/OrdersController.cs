@@ -5,6 +5,7 @@ using Sales.Application.Features.Orders.DeleteOrder;
 using Sales.Application.Features.Orders.GetAllOrders;
 using Sales.Application.Features.Orders.GetOrder;
 using Sales.Application.Features.Payments.ProcessPayment;
+using System.Security.Claims;
 
 namespace Sales.API.Controllers;
 
@@ -29,8 +30,15 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateOrderCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create([FromBody] CreateOrderRequest request, CancellationToken cancellationToken)
     {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+        {
+            return Unauthorized();
+        }
+
+        var command = new CreateOrderCommand(customerId, request.Items);
         var order = await _createOrderUseCase.ExecuteAsync(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
     }
@@ -38,31 +46,56 @@ public class OrdersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        var order = await _getOrderUseCase.ExecuteAsync(id, cancellationToken);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+        {
+            return Unauthorized();
+        }
+
+        var order = await _getOrderUseCase.ExecuteAsync(id, customerId, cancellationToken);
         return Ok(order);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        var result = await _getAllOrdersUseCase.ExecuteAsync(page, pageSize, cancellationToken);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _getAllOrdersUseCase.ExecuteAsync(page, pageSize, customerId, cancellationToken);
         return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        await _deleteOrderUseCase.ExecuteAsync(id, cancellationToken);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+        {
+            return Unauthorized();
+        }
+
+        await _deleteOrderUseCase.ExecuteAsync(id, customerId, cancellationToken);
         return NoContent();
     }
 
     [HttpPost("{id:guid}/payment")]
     public async Task<IActionResult> ProcessPayment([FromRoute] Guid id, [FromBody] ProcessPaymentRequest request, CancellationToken cancellationToken)
     {
-        var command = new ProcessPaymentCommand(id, request.Method);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var customerId))
+        {
+            return Unauthorized();
+        }
+
+        var command = new ProcessPaymentCommand(id, customerId, request.Method);
         var payment = await _processPaymentUseCase.ExecuteAsync(command, cancellationToken);
         return Ok(payment);
     }
 }
 
 public record ProcessPaymentRequest(string Method);
+public record CreateOrderRequest(List<OrderItemInput> Items);

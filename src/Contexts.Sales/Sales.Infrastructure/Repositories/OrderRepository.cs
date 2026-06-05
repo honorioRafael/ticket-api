@@ -19,19 +19,22 @@ public class OrderRepository : IOrderRepository
         await _context.Orders.AddAsync(order, cancellationToken);
     }
 
-    public async Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Order?> GetByIdAsync(Guid id, Guid customerId, CancellationToken cancellationToken = default)
     {
         return await _context.Orders
+            .Where(x => x.CustomerId == customerId)
             .Include(o => o.OrderItems)
                 .ThenInclude(i => i.Tickets)
             .SingleOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
 
-    public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetAllAsync(int page, int pageSize, Guid customerId, CancellationToken cancellationToken = default)
     {
         var query = _context.Orders.AsNoTracking()
+            .Where(o => o.CustomerId == customerId)
             .Include(o => o.OrderItems)
                 .ThenInclude(i => i.Tickets);
+
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderByDescending(o => o.PlacedAt)

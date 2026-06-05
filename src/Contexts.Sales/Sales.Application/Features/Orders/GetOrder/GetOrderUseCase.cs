@@ -16,9 +16,9 @@ public class GetOrderUseCase
         _mapper = mapper;
     }
 
-    public async Task<OrderDto> ExecuteAsync(Guid orderId, CancellationToken cancellationToken = default)
+    public async Task<OrderDto> ExecuteAsync(Guid orderId, Guid customerId, CancellationToken cancellationToken = default)
     {
-        var order = await _orderRepository.GetByIdAsync(orderId, cancellationToken);
+        var order = await _orderRepository.GetByIdAsync(orderId, customerId, cancellationToken);
         if (order == null)
             throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 

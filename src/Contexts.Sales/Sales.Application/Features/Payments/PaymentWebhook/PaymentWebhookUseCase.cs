@@ -32,7 +32,7 @@ public class PaymentWebhookUseCase
     {
         await _validator.ValidateAndThrowAsync(command, cancellationToken);
 
-        var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
+        var order = await _orderRepository.GetByIdAsync(command.OrderId, command.CustomerId, cancellationToken);
         if (order == null)
             throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 

@@ -7,6 +7,7 @@ public class PaymentWebhookCommandValidator : AbstractValidator<PaymentWebhookCo
     public PaymentWebhookCommandValidator()
     {
         RuleFor(x => x.OrderId).NotEmpty().WithMessage("O ID do pedido é obrigatório.");
+        RuleFor(x => x.CustomerId).NotEmpty().WithMessage("O ID do cliente é obrigatório.");
         RuleFor(x => x.Status).NotEmpty().WithMessage("O status é obrigatório.")
             .Must(s => s.Equals("paid", StringComparison.OrdinalIgnoreCase) ||
                        s.Equals("failed", StringComparison.OrdinalIgnoreCase))

@@ -7,6 +7,7 @@ public class ProcessPaymentCommandValidator : AbstractValidator<ProcessPaymentCo
     public ProcessPaymentCommandValidator()
     {
         RuleFor(x => x.OrderId).NotEmpty().WithMessage("O ID do pedido é obrigatório.");
+        RuleFor(x => x.CustomerId).NotEmpty().WithMessage("O ID do cliente é obrigatório.");
         RuleFor(x => x.Method).NotEmpty().WithMessage("O método de pagamento é obrigatório.")
             .Must(m => m.Equals("credit_card", StringComparison.OrdinalIgnoreCase) ||
                        m.Equals("pix", StringComparison.OrdinalIgnoreCase) ||

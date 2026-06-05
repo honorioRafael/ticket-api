@@ -26,7 +26,7 @@ public class ProcessPaymentUseCase
     {
         await _validator.ValidateAndThrowAsync(command, cancellationToken);
 
-        var order = await _orderRepository.GetByIdAsync(command.OrderId, cancellationToken);
+        var order = await _orderRepository.GetByIdAsync(command.OrderId, command.CustomerId, cancellationToken);
         if (order == null)
             throw new DomainException(DomainErrorCode.NotFound, "Pedido não encontrado.");
 
@@ -50,7 +50,7 @@ public class ProcessPaymentUseCase
         {
             for (int i = 0; i < item.Quantity; i++)
             {
-                var ticketCode = $"TKT-{Guid.CreateVersion7().ToString("N").Substring(0, 12).ToUpper()}";
+                var ticketCode = $"TKT-{Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper()}";
                 var ticket = new Ticket(item.Id, ticketCode);
                 tickets.Add(ticket);
             }
