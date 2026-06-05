@@ -1,3 +1,4 @@
+using Events.API.Requests;
 using Events.Application.Features.Events.CreateEvent;
 using Events.Application.Features.Events.CreateTicketType;
 using Events.Application.Features.Events.DeleteEvent;
@@ -78,7 +79,3 @@ public class EventsController : ControllerBase
         return Created(location, ticketType);
     }
 }
-
-public record CreateTicketTypeRequest(string Name, decimal Price, int TotalQuantity);
-
-public record UpdateEventRequest(string Name, DateTime StartsAt, DateTime EndsAt, Guid VenueId);

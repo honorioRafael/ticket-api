@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sales.API.Requests;
 using Sales.Application.Features.Customers.CreateCustomer;
 using Sales.Application.Features.Customers.DeleteCustomer;
 using Sales.Application.Features.Customers.GetAllCustomers;
@@ -76,5 +77,3 @@ public class CustomersController : ControllerBase
         return NoContent();
     }
 }
-
-public record UpdateCustomerRequest(string Name, string Email, string Document);

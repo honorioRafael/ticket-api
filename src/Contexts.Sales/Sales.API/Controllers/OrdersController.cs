@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sales.API.Requests;
 using Sales.Application.Features.Orders.CreateOrder;
 using Sales.Application.Features.Orders.DeleteOrder;
 using Sales.Application.Features.Orders.GetAllOrders;
@@ -96,6 +97,3 @@ public class OrdersController : ControllerBase
         return Ok(payment);
     }
 }
-
-public record ProcessPaymentRequest(string Method);
-public record CreateOrderRequest(List<OrderItemInput> Items);

@@ -6,8 +6,6 @@ using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Customers.LoginCustomer;
 
-public record LoginCustomerResult(string Token, CustomerDto Customer);
-
 public class LoginCustomerUseCase
 {
     private readonly ICustomerRepository _customerRepository;

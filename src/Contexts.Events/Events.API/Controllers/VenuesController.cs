@@ -1,3 +1,4 @@
+using Events.API.Requests;
 using Events.Application.Features.Venues.CreateVenue;
 using Events.Application.Features.Venues.DeleteVenue;
 using Events.Application.Features.Venues.GetAllVenues;
@@ -66,5 +67,3 @@ public class VenuesController : ControllerBase
         return NoContent();
     }
 }
-
-public record UpdateVenueRequest(string Name, string Address, int Capacity);
