@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
-using Sales.Domain.Enums;
 using Sales.Domain.Repositories;
 using Sales.Infrastructure.Contexts;
 

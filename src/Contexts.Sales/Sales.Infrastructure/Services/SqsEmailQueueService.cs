@@ -1,8 +1,8 @@
-using System.Text.Json;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Microsoft.Extensions.Configuration;
 using Sales.Domain.Services;
+using System.Text.Json;
 
 namespace Sales.Infrastructure.Services;
 

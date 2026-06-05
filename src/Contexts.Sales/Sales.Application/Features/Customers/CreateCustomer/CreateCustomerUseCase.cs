@@ -2,6 +2,7 @@ using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;
 using Sales.Domain.Repositories;
+using TicketApi.Common.Auth;
 
 namespace Sales.Application.Features.Customers.CreateCustomer;
 
@@ -9,11 +10,13 @@ public class CreateCustomerUseCase
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IValidator<CreateCustomerCommand> _validator;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public CreateCustomerUseCase(ICustomerRepository customerRepository, IValidator<CreateCustomerCommand> validator)
+    public CreateCustomerUseCase(ICustomerRepository customerRepository, IValidator<CreateCustomerCommand> validator, IPasswordHasher passwordHasher)
     {
         _customerRepository = customerRepository;
         _validator = validator;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<CustomerDto> ExecuteAsync(CreateCustomerCommand command, CancellationToken cancellationToken = default)
@@ -26,7 +29,8 @@ public class CreateCustomerUseCase
             return new CustomerDto(existing.Id, existing.Name, existing.Email, existing.Document);
         }
 
-        var customer = new Customer(command.Name, command.Email, command.Document);
+        var hashedPassword = _passwordHasher.HashPassword(command.Password);
+        var customer = new Customer(command.Name, command.Email, command.Document, hashedPassword);
         await _customerRepository.AddAsync(customer, cancellationToken);
         await _customerRepository.SaveChangesAsync(cancellationToken);
 

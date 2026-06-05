@@ -6,7 +6,7 @@ namespace Sales.Domain.ValueObjects;
 public record Email
 {
     private static readonly Regex EmailRegex = new(
-        @"^[^@\s]+@[^@\s]+\.[^@\s]+$", 
+        @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public string Value { get; }

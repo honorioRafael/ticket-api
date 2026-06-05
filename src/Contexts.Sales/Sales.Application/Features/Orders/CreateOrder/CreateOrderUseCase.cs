@@ -1,8 +1,8 @@
 using AutoMapper;
+using Events.Domain.Entities;
 using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;
-using Events.Domain.Entities;
 using Sales.Domain.Repositories;
 using TicketApi.Common.Exceptions;
 

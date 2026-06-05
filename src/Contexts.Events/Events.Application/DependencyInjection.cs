@@ -4,6 +4,8 @@ using Events.Application.Features.Events.DeleteEvent;
 using Events.Application.Features.Events.GetAllEvents;
 using Events.Application.Features.Events.GetEvent;
 using Events.Application.Features.Events.UpdateEvent;
+using Events.Application.Features.Organizers.LoginOrganizer;
+using Events.Application.Features.Organizers.RegisterOrganizer;
 using Events.Application.Features.Venues.CreateVenue;
 using Events.Application.Features.Venues.DeleteVenue;
 using Events.Application.Features.Venues.GetAllVenues;
@@ -33,6 +35,9 @@ public static class DependencyInjection
         services.AddScoped<DeleteEventUseCase>();
         services.AddScoped<GetAllEventsUseCase>();
         services.AddScoped<CreateTicketTypeUseCase>();
+
+        services.AddScoped<RegisterOrganizerUseCase>();
+        services.AddScoped<LoginOrganizerUseCase>();
 
         return services;
     }

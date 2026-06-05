@@ -28,9 +28,10 @@ public static class DependencyInjection
         services.AddScoped<IEventRepository, EventRepository>();
 
         // AWS
-        var region = Amazon.RegionEndpoint.GetBySystemName(configuration["AWS:Region"]!);
-        var accessKey = configuration["AWS:AccessKeyId"]!;
-        var secretKey = configuration["AWS:SecretAccessKey"]!;
+        var regionName = configuration["AWS:Region"];
+        var region = !string.IsNullOrEmpty(regionName) ? Amazon.RegionEndpoint.GetBySystemName(regionName) : Amazon.RegionEndpoint.USEast1;
+        var accessKey = configuration["AWS:AccessKeyId"] ?? "";
+        var secretKey = configuration["AWS:SecretAccessKey"] ?? "";
 
         services.AddSingleton<IAmazonSQS>(_ => new AmazonSQSClient(accessKey, secretKey, new AmazonSQSConfig { RegionEndpoint = region }));
         services.AddSingleton<IAmazonSimpleEmailService>(_ => new AmazonSimpleEmailServiceClient(accessKey, secretKey, new AmazonSimpleEmailServiceConfig { RegionEndpoint = region }));

@@ -1,14 +1,17 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Features.Customers.CreateCustomer;
 using Sales.Application.Features.Customers.DeleteCustomer;
 using Sales.Application.Features.Customers.GetAllCustomers;
 using Sales.Application.Features.Customers.GetCustomer;
+using Sales.Application.Features.Customers.LoginCustomer;
 using Sales.Application.Features.Customers.UpdateCustomer;
 
 namespace Sales.API.Controllers;
 
 [ApiController]
 [Route("customers")]
+[Authorize]
 public class CustomersController : ControllerBase
 {
     private readonly CreateCustomerUseCase _createCustomerUseCase;
@@ -16,21 +19,32 @@ public class CustomersController : ControllerBase
     private readonly GetAllCustomersUseCase _getAllCustomersUseCase;
     private readonly UpdateCustomerUseCase _updateCustomerUseCase;
     private readonly DeleteCustomerUseCase _deleteCustomerUseCase;
+    private readonly LoginCustomerUseCase _loginCustomerUseCase;
 
-    public CustomersController(CreateCustomerUseCase createCustomerUseCase, GetCustomerUseCase getCustomerUseCase, GetAllCustomersUseCase getAllCustomersUseCase, UpdateCustomerUseCase updateCustomerUseCase, DeleteCustomerUseCase deleteCustomerUseCase)
+    public CustomersController(CreateCustomerUseCase createCustomerUseCase, GetCustomerUseCase getCustomerUseCase, GetAllCustomersUseCase getAllCustomersUseCase, UpdateCustomerUseCase updateCustomerUseCase, DeleteCustomerUseCase deleteCustomerUseCase, LoginCustomerUseCase loginCustomerUseCase)
     {
         _createCustomerUseCase = createCustomerUseCase;
         _getCustomerUseCase = getCustomerUseCase;
         _getAllCustomersUseCase = getAllCustomersUseCase;
         _updateCustomerUseCase = updateCustomerUseCase;
         _deleteCustomerUseCase = deleteCustomerUseCase;
+        _loginCustomerUseCase = loginCustomerUseCase;
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Create([FromBody] CreateCustomerCommand command, CancellationToken cancellationToken)
     {
         var customer = await _createCustomerUseCase.ExecuteAsync(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer);
+    }
+
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Login([FromBody] LoginCustomerCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _loginCustomerUseCase.ExecuteAsync(command, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]

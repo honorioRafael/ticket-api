@@ -9,10 +9,11 @@ public class Customer
     public string Name { get; private set; } = null!;
     public Email Email { get; private set; } = null!;
     public Document Document { get; private set; } = null!;
+    public Password Password { get; private set; } = null!;
 
     private Customer() { }
 
-    public Customer(string name, string email, string document)
+    public Customer(string name, string email, string document, string password)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException(DomainErrorCode.ValidationError, "O nome não pode ser vazio.");
@@ -21,6 +22,7 @@ public class Customer
         Name = name;
         Email = new Email(email);
         Document = new Document(document);
+        Password = new Password(password);
     }
 
     public void Update(string name, string email, string document)
@@ -31,5 +33,10 @@ public class Customer
         Name = name;
         Email = new Email(email);
         Document = new Document(document);
+    }
+
+    public void ChangePassword(string newPassword)
+    {
+        Password = new Password(newPassword);
     }
 }

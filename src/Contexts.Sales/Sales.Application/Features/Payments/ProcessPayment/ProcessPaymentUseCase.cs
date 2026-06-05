@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentValidation;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;

@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using TicketApi.Common.Exceptions;
 using System.Text.Json;
+using TicketApi.Common.Exceptions;
 
 namespace TicketApi.Common.Middlewares;
 

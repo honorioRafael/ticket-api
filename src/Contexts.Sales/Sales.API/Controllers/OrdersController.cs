@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Features.Orders.CreateOrder;
 using Sales.Application.Features.Orders.DeleteOrder;
@@ -9,6 +10,7 @@ namespace Sales.API.Controllers;
 
 [ApiController]
 [Route("orders")]
+[Authorize]
 public class OrdersController : ControllerBase
 {
     private readonly CreateOrderUseCase _createOrderUseCase;

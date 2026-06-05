@@ -3,12 +3,14 @@ using Events.Application.Features.Venues.DeleteVenue;
 using Events.Application.Features.Venues.GetAllVenues;
 using Events.Application.Features.Venues.GetVenue;
 using Events.Application.Features.Venues.UpdateVenue;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
 [ApiController]
 [Route("venues")]
+[Authorize]
 public class VenuesController : ControllerBase
 {
     private readonly CreateVenueUseCase _createVenueUseCase;
@@ -34,6 +36,7 @@ public class VenuesController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var venue = await _getVenueUseCase.ExecuteAsync(id, cancellationToken);
@@ -41,6 +44,7 @@ public class VenuesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await _getAllVenuesUseCase.ExecuteAsync(page, pageSize, cancellationToken);

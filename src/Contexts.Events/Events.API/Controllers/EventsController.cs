@@ -4,12 +4,14 @@ using Events.Application.Features.Events.DeleteEvent;
 using Events.Application.Features.Events.GetAllEvents;
 using Events.Application.Features.Events.GetEvent;
 using Events.Application.Features.Events.UpdateEvent;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Events.API.Controllers;
 
 [ApiController]
 [Route("events")]
+[Authorize]
 public class EventsController : ControllerBase
 {
     private readonly CreateEventUseCase _createEventUseCase;
@@ -37,6 +39,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById([FromRoute] Guid id, CancellationToken cancellationToken)
     {
         var @event = await _getEventUseCase.ExecuteAsync(id, cancellationToken);
@@ -44,6 +47,7 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
     {
         var result = await _getAllEventsUseCase.ExecuteAsync(page, pageSize, cancellationToken);

@@ -1,8 +1,7 @@
+using Events.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
-using Events.Domain.Entities;
 using Sales.Domain.ValueObjects;
-using Events.Domain.ValueObjects;
 
 namespace Sales.Infrastructure.Contexts;
 
@@ -30,7 +29,7 @@ public class SalesDbContext : DbContext
             entity.Property(e => e.Email)
                 .HasConversion(
                     email => email.Value,
-                    value => new Email(value))
+                    value => new Sales.Domain.ValueObjects.Email(value))
                 .IsRequired()
                 .HasMaxLength(255);
             entity.Property(e => e.Document)
@@ -39,6 +38,12 @@ public class SalesDbContext : DbContext
                     value => new Document(value))
                 .IsRequired()
                 .HasMaxLength(50);
+            entity.Property(e => e.Password)
+                .HasConversion(
+                    pass => pass.Value,
+                    value => new Sales.Domain.ValueObjects.Password(value))
+                .IsRequired()
+                .HasMaxLength(255);
             entity.HasIndex(e => e.Document).IsUnique();
         });
 

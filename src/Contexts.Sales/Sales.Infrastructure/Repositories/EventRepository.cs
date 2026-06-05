@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using Events.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Repositories;
 using Sales.Infrastructure.Contexts;
 

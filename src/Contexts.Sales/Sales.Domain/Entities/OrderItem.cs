@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TicketApi.Common.Exceptions;
 
 namespace Sales.Domain.Entities;

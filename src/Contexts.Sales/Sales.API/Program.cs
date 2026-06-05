@@ -1,5 +1,6 @@
 using Sales.Application;
 using Sales.Infrastructure;
+using TicketApi.Common.Auth;
 using TicketApi.Common.Middlewares;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -11,10 +12,26 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddSalesApplication();
 builder.Services.AddSalesInfrastructure(connectionString, builder.Configuration);
+builder.Services.AddCustomAuth(builder.Configuration, requiredRole: "Customer");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
+    {
+        Description = "Informe apenas o token JWT (sem o prefixo 'Bearer'). O Swagger adiciona automaticamente.",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(document => new()
+    {
+        [new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document)] = new()
+    });
+});
 
 var app = builder.Build();
 
@@ -27,6 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

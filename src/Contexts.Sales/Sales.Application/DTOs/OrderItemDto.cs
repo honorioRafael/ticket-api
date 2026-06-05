@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Sales.Application.DTOs;
 
 public record OrderItemDto(

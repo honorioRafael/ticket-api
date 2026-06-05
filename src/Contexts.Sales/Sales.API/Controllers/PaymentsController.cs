@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sales.Application.Features.Payments.PaymentWebhook;
 
@@ -5,6 +6,7 @@ namespace Sales.API.Controllers;
 
 [ApiController]
 [Route("payments")]
+[AllowAnonymous]
 public class PaymentsController : ControllerBase
 {
     private readonly PaymentWebhookUseCase _paymentWebhookUseCase;

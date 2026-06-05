@@ -1,4 +1,5 @@
 using Events.Domain.Entities;
+using Events.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Events.Infrastructure.Contexts;
@@ -8,6 +9,7 @@ public class EventsDbContext : DbContext
     public DbSet<Venue> Venues => Set<Venue>();
     public DbSet<Event> Events => Set<Event>();
     public DbSet<TicketType> TicketTypes => Set<TicketType>();
+    public DbSet<Organizer> Organizers => Set<Organizer>();
 
     public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
     {
@@ -15,6 +17,26 @@ public class EventsDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Organizer>(entity =>
+        {
+            entity.ToTable("organizers");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Email)
+                .HasConversion(
+                    email => email.Value,
+                    value => new Email(value))
+                .IsRequired()
+                .HasMaxLength(255);
+            entity.Property(e => e.Password)
+                .HasConversion(
+                    pass => pass.Value,
+                    value => new Password(value))
+                .IsRequired()
+                .HasMaxLength(255);
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
+
         modelBuilder.Entity<Venue>(entity =>
         {
             entity.ToTable("venues");

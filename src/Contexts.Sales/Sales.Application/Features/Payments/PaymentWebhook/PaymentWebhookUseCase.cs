@@ -1,6 +1,5 @@
 using FluentValidation;
 using Sales.Domain.Entities;
-using Events.Domain.Entities;
 using Sales.Domain.Enums;
 using Sales.Domain.Repositories;
 using Sales.Domain.Services;

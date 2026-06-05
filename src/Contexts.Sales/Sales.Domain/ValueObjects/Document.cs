@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using TicketApi.Common.Exceptions;
 
 namespace Sales.Domain.ValueObjects;

@@ -1,4 +1,3 @@
-using System.Linq;
 using AutoMapper;
 using Sales.Application.DTOs;
 using Sales.Domain.Entities;

@@ -4,6 +4,7 @@ using Sales.Application.Features.Customers.CreateCustomer;
 using Sales.Application.Features.Customers.DeleteCustomer;
 using Sales.Application.Features.Customers.GetAllCustomers;
 using Sales.Application.Features.Customers.GetCustomer;
+using Sales.Application.Features.Customers.LoginCustomer;
 using Sales.Application.Features.Customers.UpdateCustomer;
 using Sales.Application.Features.Orders.CreateOrder;
 using Sales.Application.Features.Orders.DeleteOrder;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<GetAllCustomersUseCase>();
         services.AddScoped<UpdateCustomerUseCase>();
         services.AddScoped<DeleteCustomerUseCase>();
+        services.AddScoped<LoginCustomerUseCase>();
 
         services.AddScoped<CreateOrderUseCase>();
         services.AddScoped<GetOrderUseCase>();

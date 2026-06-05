@@ -1,7 +1,7 @@
-using Sales.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Sales.Domain.Entities;
 using Sales.Domain.Repositories;
+using Sales.Domain.ValueObjects;
 using Sales.Infrastructure.Contexts;
 
 namespace Sales.Infrastructure.Repositories;
@@ -23,6 +23,12 @@ public class CustomerRepository : ICustomerRepository
     public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Customers.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
+
+    public async Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var emailVo = new Email(email);
+        return await _context.Customers.SingleOrDefaultAsync(c => c.Email == emailVo, cancellationToken);
     }
 
     public async Task<Customer?> GetByDocumentAsync(string document, CancellationToken cancellationToken = default)
