@@ -1,15 +1,37 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { formatBRL, formatDateTime, getEvent, getTicketTypesByEvent, getVenue } from "@/data/mock";
+import { formatBRL, formatDateTime } from "@/data/mock";
+import { eventsApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { Calendar, MapPin, Ticket, Users } from "lucide-react";
-import { useMemo } from "react";
 
 const EventDetail = () => {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const event = getEvent(id);
-  const venue = event ? getVenue(event.venueId) : undefined;
-  const types = useMemo(() => (event ? getTicketTypesByEvent(event.id) : []), [event]);
+
+  const { data: event, isLoading } = useQuery({
+    queryKey: ["event", id],
+    queryFn: () => eventsApi.getById(id),
+    enabled: !!id,
+  });
+
+  const { data: venue } = useQuery({
+    queryKey: ["venue", event?.venueId],
+    queryFn: () => eventsApi.getVenueById(event!.venueId),
+    enabled: !!event?.venueId,
+  });
+
+  const types = event?.ticketTypes || [];
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+          <h1 className="text-2xl font-semibold">Carregando detalhes do evento...</h1>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!event) {
     return (

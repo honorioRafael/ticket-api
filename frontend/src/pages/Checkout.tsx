@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { formatBRL, getEvent, getTicketType } from "@/data/mock";
+import { formatBRL } from "@/data/mock";
 import { useCart } from "@/store/cart";
-import { useState } from "react";
+import { useAuth } from "@/store/auth";
+import { eventsApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { PaymentMethod } from "@/types/domain";
 import { CreditCard, QrCode, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -15,12 +18,56 @@ const methods: { id: PaymentMethod; label: string; icon: React.ReactNode; hint: 
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { eventId, lines, total, checkout, clear } = useCart();
-  const event = eventId ? getEvent(eventId) : undefined;
+  const { user } = useAuth();
+  const { eventId, lines, total, checkout, ticketTypes } = useCart();
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [doc, setDoc] = useState("");
   const [method, setMethod] = useState<PaymentMethod>("credit_card");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch event details dynamically from database
+  const { data: event, isLoading: eventLoading } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: () => eventsApi.getById(eventId || ""),
+    enabled: !!eventId,
+  });
+
+  // Pre-fill user details if logged in
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+    }
+  }, [user]);
+
+  if (!user) {
+    return (
+      <PageLayout>
+        <div className="max-w-md mx-auto px-6 py-24 text-center">
+          <h1 className="text-2xl font-semibold">Identificação necessária</h1>
+          <p className="text-muted-foreground mt-2">Você precisa entrar na sua conta para finalizar a compra de ingressos.</p>
+          <button
+            onClick={() => navigate("/login?redirect=/checkout")}
+            className="mt-6 w-full bg-primary text-primary-foreground py-3 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Entrar ou Criar conta
+          </button>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (eventLoading) {
+    return (
+      <PageLayout>
+        <div className="max-w-3xl mx-auto px-6 py-24 text-center">
+          <h1 className="text-xl font-medium text-muted-foreground">Carregando dados do pedido...</h1>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!event || lines.length === 0) {
     return (
@@ -38,21 +85,33 @@ const Checkout = () => {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !doc) {
       toast.error("Preencha todos os dados");
       return;
     }
-    const customerId = "c-" + Date.now();
-    const { order } = checkout(customerId, method);
-    // store customer info on the order id for confirmation page
-    sessionStorage.setItem(
-      `order:${order.id}`,
-      JSON.stringify({ name, email, eventId: event.id })
-    );
-    clear();
-    navigate(`/sucesso/${order.id}`);
+    
+    setIsSubmitting(true);
+    try {
+      const { order, ticketCodes } = await checkout(method);
+      // Store checkout metadata in sessionStorage for the Success confirmation page
+      sessionStorage.setItem(
+        `order:${order.id}`,
+        JSON.stringify({ 
+          name, 
+          email, 
+          eventName: event.name, 
+          ticketCodes 
+        })
+      );
+      toast.success("Pagamento aprovado!");
+      navigate(`/sucesso/${order.id}`);
+    } catch (err: any) {
+      toast.error(err.message || "Não foi possível finalizar o pedido.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,7 +158,8 @@ const Checkout = () => {
               <p className="text-sm text-muted-foreground mt-1">{event.name}</p>
               <div className="mt-5 space-y-3">
                 {lines.map((l) => {
-                  const t = getTicketType(l.ticketTypeId)!;
+                  const t = ticketTypes.find((x) => x.id === l.ticketTypeId)!;
+                  if (!t) return null;
                   return (
                     <div key={l.ticketTypeId} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">
@@ -116,9 +176,10 @@ const Checkout = () => {
               </div>
               <button
                 type="submit"
-                className="mt-6 w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 transition-opacity"
+                disabled={isSubmitting}
+                className="mt-6 w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
               >
-                Confirmar e pagar
+                {isSubmitting ? "Processando..." : "Confirmar e pagar"}
               </button>
             </div>
           </aside>

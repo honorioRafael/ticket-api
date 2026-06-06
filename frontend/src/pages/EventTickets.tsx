@@ -1,20 +1,38 @@
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { formatBRL, getEvent, getTicketTypesByEvent } from "@/data/mock";
+import { formatBRL } from "@/data/mock";
 import { useCart } from "@/store/cart";
+import { eventsApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Minus, Plus } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 
 const EventTickets = () => {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const event = getEvent(id);
-  const types = useMemo(() => (event ? getTicketTypesByEvent(event.id) : []), [event]);
+
+  const { data: event, isLoading } = useQuery({
+    queryKey: ["event", id],
+    queryFn: () => eventsApi.getById(id),
+    enabled: !!id,
+  });
+
+  const types = event?.ticketTypes || [];
   const { lines, setEvent, setQty, total } = useCart();
 
   useEffect(() => {
     if (event) setEvent(event.id);
   }, [event, setEvent]);
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+          <h1 className="text-2xl font-semibold">Carregando ingressos do evento...</h1>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!event) {
     return (
@@ -57,7 +75,7 @@ const EventTickets = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setQty(t.id, Math.max(0, q - 1))}
+                        onClick={() => setQty(t.id, Math.max(0, q - 1), t)}
                         disabled={q === 0}
                         className="w-8 h-8 grid place-items-center rounded-lg border border-border disabled:opacity-30 hover:bg-surface transition-colors"
                       >
@@ -65,7 +83,7 @@ const EventTickets = () => {
                       </button>
                       <span className="w-6 text-center font-mono-feat text-sm">{q}</span>
                       <button
-                        onClick={() => setQty(t.id, Math.min(t.availableQuantity, q + 1))}
+                        onClick={() => setQty(t.id, Math.min(t.availableQuantity, q + 1), t)}
                         disabled={sold || q >= t.availableQuantity}
                         className="w-8 h-8 grid place-items-center rounded-lg border border-border disabled:opacity-30 hover:bg-surface transition-colors"
                       >

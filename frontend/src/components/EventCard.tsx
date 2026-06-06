@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
 import { Event } from "@/types/domain";
-import { formatBRL, getTicketTypesByEvent, getVenue } from "@/data/mock";
+import { formatBRL } from "@/data/mock";
+import { eventsApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, MapPin } from "lucide-react";
 
 export const EventCard = ({ event }: { event: Event }) => {
-  const types = getTicketTypesByEvent(event.id);
-  const minPrice = types.length ? Math.min(...types.map((t) => t.price)) : 0;
-  const venue = getVenue(event.venueId);
+  const types = (event as any).ticketTypes || [];
+  const minPrice = types.length ? Math.min(...types.map((t: any) => t.price)) : 0;
+  
+  const { data: venue } = useQuery({
+    queryKey: ["venue", event.venueId],
+    queryFn: () => eventsApi.getVenueById(event.venueId),
+    enabled: !!event.venueId,
+  });
+
   const date = new Date(event.startsAt);
   const dateLabel = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "");
   const weekday = date.toLocaleDateString("pt-BR", { weekday: "long" });

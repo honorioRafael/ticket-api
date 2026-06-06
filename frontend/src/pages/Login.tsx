@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
@@ -7,19 +7,34 @@ import { Ticket } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const login = useAuth((s) => s.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const u = login(email, password);
-    if (!u) {
-      toast.error("E-mail ou senha inválidos");
+    if (!email || !password) {
+      toast.error("Preencha todos os campos");
       return;
     }
-    toast.success(`Bem-vindo(a), ${u.name}`);
-    navigate(u.role === "admin" ? "/admin" : "/");
+    
+    setIsSubmitting(true);
+    try {
+      const u = await login(email, password);
+      if (!u) {
+        toast.error("E-mail ou senha inválidos");
+        return;
+      }
+      toast.success(`Bem-vindo(a), ${u.name}`);
+      const redirect = searchParams.get("redirect") || (u.role === "admin" ? "/admin" : "/");
+      navigate(redirect);
+    } catch (err: any) {
+      toast.error(err.message || "Falha ao realizar login");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -39,9 +54,10 @@ const Login = () => {
           <Field label="Senha" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 transition-opacity"
+            disabled={isSubmitting}
+            className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            Entrar
+            {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
@@ -54,8 +70,8 @@ const Login = () => {
 
         <div className="mt-8 p-4 rounded-xl bg-surface text-xs text-muted-foreground space-y-1">
           <p className="font-mono-feat uppercase tracking-wider">Contas de demonstração</p>
-          <p>admin@tikket.com / admin123</p>
-          <p>user@tikket.com / user123</p>
+          <p>admin@tikket.com / admin123 (Organizador)</p>
+          <p>user@tikket.com / user123 (Cliente)</p>
         </div>
       </div>
     </PageLayout>

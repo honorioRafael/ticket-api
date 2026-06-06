@@ -1,14 +1,33 @@
 import { Link, useParams } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { formatBRL, formatDateTime, getEvent, getTicketType, orders, tickets } from "@/data/mock";
+import { formatBRL, formatDateTime } from "@/data/mock";
+import { salesApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
 
 const Success = () => {
   const { orderId = "" } = useParams();
-  const order = orders.find((o) => o.id === orderId);
-  const issued = tickets.filter((t) => order?.items.some((i) => i.id === t.orderItemId));
+  
+  // Retrieve checkout metadata from session storage
   const meta = JSON.parse(sessionStorage.getItem(`order:${orderId}`) || "{}");
-  const event = meta.eventId ? getEvent(meta.eventId) : undefined;
+  const ticketCodes: string[] = meta.ticketCodes || [];
+
+  // Fetch the order details from Sales API
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["order", orderId],
+    queryFn: () => salesApi.getOrderById(orderId),
+    enabled: !!orderId,
+  });
+
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="max-w-3xl mx-auto px-6 py-24 text-center">
+          <h1 className="text-xl font-medium text-muted-foreground">Carregando confirmação...</h1>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!order) {
     return (
@@ -32,7 +51,7 @@ const Success = () => {
           </div>
           <h1 className="mt-6 text-3xl md:text-4xl font-semibold tracking-tight">Compra confirmada!</h1>
           <p className="mt-3 text-muted-foreground">
-            Seus ingressos foram emitidos e enviados para <span className="font-medium text-foreground">{meta.email}</span>.
+            Seus ingressos foram emitidos e enviados para <span className="font-medium text-foreground">{meta.email || "seu e-mail"}</span>.
           </p>
         </div>
 
@@ -45,10 +64,10 @@ const Success = () => {
             <span className="text-muted-foreground">Data</span>
             <span>{formatDateTime(order.placedAt)}</span>
           </div>
-          {event && (
+          {meta.eventName && (
             <div className="mt-2 flex justify-between text-sm">
               <span className="text-muted-foreground">Evento</span>
-              <span className="font-medium">{event.name}</span>
+              <span className="font-medium">{meta.eventName}</span>
             </div>
           )}
           <div className="mt-2 flex justify-between text-sm">
@@ -57,19 +76,19 @@ const Success = () => {
           </div>
         </div>
 
-        <h2 className="mt-10 text-base font-semibold">Seus ingressos ({issued.length})</h2>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {issued.map((t) => {
-            const item = order.items.find((i) => i.id === t.orderItemId)!;
-            const tt = getTicketType(item.ticketTypeId);
-            return (
-              <div key={t.id} className="bg-surface rounded-xl p-4 border border-border">
-                <p className="font-mono-feat text-[10px] uppercase text-muted-foreground">{tt?.name}</p>
-                <p className="font-mono-feat text-lg font-medium mt-1">{t.code}</p>
-              </div>
-            );
-          })}
-        </div>
+        {ticketCodes.length > 0 && (
+          <>
+            <h2 className="mt-10 text-base font-semibold">Seus ingressos ({ticketCodes.length})</h2>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {ticketCodes.map((code) => (
+                <div key={code} className="bg-surface rounded-xl p-4 border border-border">
+                  <p className="font-mono-feat text-[10px] uppercase text-muted-foreground">Ingresso</p>
+                  <p className="font-mono-feat text-lg font-medium mt-1">{code}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="mt-10 flex gap-3 justify-center">
           <Link to="/meus-ingressos" className="bg-primary text-primary-foreground text-sm font-medium px-5 py-3 rounded-lg">

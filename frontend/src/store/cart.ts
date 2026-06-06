@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { Order, OrderItem, Ticket } from "@/types/domain";
-import { generateTicketCode, getTicketType, orders, tickets } from "@/data/mock";
+import { Order, TicketType } from "@/types/domain";
+import { salesApi } from "@/lib/api";
 
 interface CartLine {
   ticketTypeId: string;
@@ -10,70 +10,60 @@ interface CartLine {
 interface CartState {
   eventId: string | null;
   lines: CartLine[];
+  ticketTypes: TicketType[];
   setEvent: (eventId: string) => void;
-  setQty: (ticketTypeId: string, quantity: number) => void;
+  setQty: (ticketTypeId: string, quantity: number, ticketType?: TicketType) => void;
   clear: () => void;
   total: () => number;
-  checkout: (customerId: string, method: "credit_card" | "pix" | "boleto") => { order: Order; tickets: Ticket[] };
+  checkout: (method: "credit_card" | "pix" | "boleto") => Promise<{ order: Order; ticketCodes: string[] }>;
 }
 
 export const useCart = create<CartState>((set, get) => ({
   eventId: null,
   lines: [],
+  ticketTypes: [],
   setEvent: (eventId) =>
-    set((s) => (s.eventId === eventId ? s : { eventId, lines: [] })),
-  setQty: (ticketTypeId, quantity) =>
+    set((s) => (s.eventId === eventId ? s : { eventId, lines: [], ticketTypes: [] })),
+  setQty: (ticketTypeId, quantity, ticketType) =>
     set((s) => {
       const others = s.lines.filter((l) => l.ticketTypeId !== ticketTypeId);
-      if (quantity <= 0) return { lines: others };
-      return { lines: [...others, { ticketTypeId, quantity }] };
+      const lines = quantity <= 0 ? others : [...others, { ticketTypeId, quantity }];
+      
+      let ticketTypes = s.ticketTypes;
+      if (ticketType && !s.ticketTypes.some((t) => t.id === ticketTypeId)) {
+        ticketTypes = [...s.ticketTypes, ticketType];
+      }
+      return { lines, ticketTypes };
     }),
-  clear: () => set({ eventId: null, lines: [] }),
+  clear: () => set({ eventId: null, lines: [], ticketTypes: [] }),
   total: () =>
     get().lines.reduce((sum, l) => {
-      const t = getTicketType(l.ticketTypeId);
+      const t = get().ticketTypes.find((x) => x.id === l.ticketTypeId);
       return sum + (t ? t.price * l.quantity : 0);
     }, 0),
-  checkout: (customerId, method) => {
+  checkout: async (method) => {
     const lines = get().lines;
-    const orderId = "o" + Date.now();
-    const items: OrderItem[] = lines.map((l, i) => {
-      const t = getTicketType(l.ticketTypeId)!;
-      return {
-        id: `${orderId}-i${i}`,
-        orderId,
-        ticketTypeId: t.id,
-        unitPrice: t.price,
-        quantity: l.quantity,
-      };
-    });
-    const totalAmount = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
-    const order: Order = {
-      id: orderId,
-      customerId,
-      placedAt: new Date().toISOString(),
-      totalAmount,
-      status: "confirmed",
-      items,
+    const items = lines.map((l) => ({
+      ticketTypeId: l.ticketTypeId,
+      quantity: l.quantity,
+    }));
+
+    // 1. Create the order in the Sales API
+    const order = await salesApi.createOrder(items);
+
+    // 2. Process the payment in the Sales API
+    const payment = await salesApi.payOrder(order.id, method);
+
+    // 3. Clear cart
+    get().clear();
+
+    return { 
+      order: {
+        ...order,
+        // Make sure status matches confirmed since we just paid
+        status: "confirmed"
+      }, 
+      ticketCodes: payment.ticketCodes || [] 
     };
-    const issued: Ticket[] = [];
-    items.forEach((item) => {
-      for (let q = 0; q < item.quantity; q++) {
-        issued.push({
-          id: `${item.id}-t${q}`,
-          orderItemId: item.id,
-          code: generateTicketCode(),
-          status: "active",
-        });
-      }
-      // decrement availability
-      const tt = getTicketType(item.ticketTypeId);
-      if (tt) tt.availableQuantity = Math.max(0, tt.availableQuantity - item.quantity);
-    });
-    orders.unshift(order);
-    tickets.unshift(...issued);
-    // payment is created implicitly as paid for demo
-    void method;
-    return { order, tickets: issued };
   },
 }));

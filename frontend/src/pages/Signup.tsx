@@ -9,22 +9,32 @@ const Signup = () => {
   const navigate = useNavigate();
   const signup = useAuth((s) => s.signup);
   const [name, setName] = useState("");
+  const [cpf, setCpf] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || password.length < 6) {
+    if (!name || !email || !cpf || password.length < 6) {
       toast.error("Preencha todos os campos (senha mín. 6 caracteres)");
       return;
     }
-    const u = signup(name, email, password);
-    if (!u) {
-      toast.error("Esse e-mail já está cadastrado");
-      return;
+    
+    setIsSubmitting(true);
+    try {
+      const u = await signup(name, email, password, cpf);
+      if (!u) {
+        toast.error("CPF ou E-mail inválidos / já cadastrados");
+        return;
+      }
+      toast.success("Conta criada com sucesso! Você foi conectado.");
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao criar conta");
+    } finally {
+      setIsSubmitting(false);
     }
-    toast.success("Conta criada com sucesso!");
-    navigate("/");
   };
 
   return (
@@ -41,13 +51,15 @@ const Signup = () => {
 
         <form onSubmit={submit} className="mt-8 space-y-4">
           <Field label="Nome completo" value={name} onChange={setName} placeholder="Maria Silva" />
+          <Field label="CPF" value={cpf} onChange={setCpf} placeholder="000.000.000-00" />
           <Field label="E-mail" type="email" value={email} onChange={setEmail} placeholder="voce@email.com" />
           <Field label="Senha" type="password" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" />
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 transition-opacity"
+            disabled={isSubmitting}
+            className="w-full bg-primary text-primary-foreground text-sm font-medium py-3 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            Criar conta
+            {isSubmitting ? "Criando conta..." : "Criar conta"}
           </button>
         </form>
 

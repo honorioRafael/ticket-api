@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { EventCard } from "@/components/EventCard";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { events } from "@/data/mock";
+import { eventsApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 
@@ -11,7 +12,12 @@ const Index = () => {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("Todos");
 
-  const filtered = events.filter((e) => {
+  const { data: dbEvents = [], isLoading } = useQuery({
+    queryKey: ["events"],
+    queryFn: () => eventsApi.getAll(),
+  });
+
+  const filtered = dbEvents.filter((e) => {
     const matchCat = cat === "Todos" || e.category === cat;
     const matchQuery = !query || e.name.toLowerCase().includes(query.toLowerCase());
     return matchCat && matchQuery;
@@ -71,7 +77,9 @@ const Index = () => {
             </div>
           </div>
 
-          {filtered.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-20 text-muted-foreground">Carregando eventos...</div>
+          ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((e) => (
                 <EventCard key={e.id} event={e} />

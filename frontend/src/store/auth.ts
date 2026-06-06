@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { authApi, registerTokenProvider } from "@/lib/api";
 
 export type UserRole = "admin" | "user";
 
@@ -8,41 +9,71 @@ export interface AuthUser {
   name: string;
   email: string;
   role: UserRole;
+  token: string;
 }
 
 interface AuthState {
   user: AuthUser | null;
-  users: (AuthUser & { password: string })[];
-  login: (email: string, password: string) => AuthUser | null;
-  signup: (name: string, email: string, password: string) => AuthUser | null;
+  login: (email: string, password: string) => Promise<AuthUser | null>;
+  signup: (name: string, email: string, password: string, cpf: string) => Promise<AuthUser | null>;
   logout: () => void;
 }
 
-const seedUsers = [
-  { id: "u-admin", name: "Administrador", email: "admin@tikket.com", password: "admin123", role: "admin" as UserRole },
-  { id: "u-demo", name: "Maria Silva", email: "user@tikket.com", password: "user123", role: "user" as UserRole },
-];
-
 export const useAuth = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
-      users: seedUsers,
-      login: (email, password) => {
-        const u = get().users.find((x) => x.email.toLowerCase() === email.toLowerCase() && x.password === password);
-        if (!u) return null;
-        const auth: AuthUser = { id: u.id, name: u.name, email: u.email, role: u.role };
-        set({ user: auth });
-        return auth;
+      login: async (email, password) => {
+        try {
+          // Attempt user (customer) login
+          const res = await authApi.loginCustomer(email, password);
+          const auth: AuthUser = {
+            id: res.customer.id,
+            name: res.customer.name,
+            email: res.customer.email,
+            role: "user",
+            token: res.token,
+          };
+          set({ user: auth });
+          return auth;
+        } catch {
+          // If customer login fails, attempt organizer (admin) login
+          try {
+            const res = await authApi.loginOrganizer(email, password);
+            const auth: AuthUser = {
+              id: res.organizer?.id || "admin-id",
+              name: res.organizer?.name || "Organizador",
+              email: email,
+              role: "admin",
+              token: res.token,
+            };
+            set({ user: auth });
+            return auth;
+          } catch {
+            return null;
+          }
+        }
       },
-      signup: (name, email, password) => {
-        if (get().users.some((u) => u.email.toLowerCase() === email.toLowerCase())) return null;
-        const newUser = { id: "u-" + Date.now(), name, email, password, role: "user" as UserRole };
-        set((s) => ({ users: [...s.users, newUser], user: { id: newUser.id, name, email, role: "user" } }));
-        return { id: newUser.id, name, email, role: "user" };
+      signup: async (name, email, password, cpf) => {
+        try {
+          const res = await authApi.registerCustomer(name, email, cpf, password);
+          const auth: AuthUser = {
+            id: res.customer.id,
+            name: res.customer.name,
+            email: res.customer.email,
+            role: "user",
+            token: res.token,
+          };
+          set({ user: auth });
+          return auth;
+        } catch {
+          return null;
+        }
       },
       logout: () => set({ user: null }),
     }),
     { name: "tikket-auth" }
   )
 );
+
+registerTokenProvider(() => useAuth.getState().user?.token || null);

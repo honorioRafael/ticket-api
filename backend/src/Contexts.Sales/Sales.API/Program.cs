@@ -14,6 +14,16 @@ builder.Services.AddSalesApplication();
 builder.Services.AddSalesInfrastructure(connectionString, builder.Configuration);
 builder.Services.AddCustomAuth(builder.Configuration, requiredRole: "Customer");
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -36,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
