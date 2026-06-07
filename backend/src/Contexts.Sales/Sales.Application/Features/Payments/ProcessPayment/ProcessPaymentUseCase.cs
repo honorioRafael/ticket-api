@@ -3,6 +3,7 @@ using Sales.Application.DTOs;
 using Sales.Domain.Entities;
 using Sales.Domain.Enums;
 using Sales.Domain.Repositories;
+using Sales.Domain.Services;
 using TicketApi.Common.Exceptions;
 
 namespace Sales.Application.Features.Payments.ProcessPayment;
@@ -12,13 +13,17 @@ public class ProcessPaymentUseCase
     private readonly IOrderRepository _orderRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly ITicketRepository _ticketRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IEmailQueueService _emailQueue;
     private readonly IValidator<ProcessPaymentCommand> _validator;
 
-    public ProcessPaymentUseCase(IOrderRepository orderRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, IValidator<ProcessPaymentCommand> validator)
+    public ProcessPaymentUseCase(IOrderRepository orderRepository, IPaymentRepository paymentRepository, ITicketRepository ticketRepository, ICustomerRepository customerRepository, IEmailQueueService emailQueue, IValidator<ProcessPaymentCommand> validator)
     {
         _orderRepository = orderRepository;
         _paymentRepository = paymentRepository;
         _ticketRepository = ticketRepository;
+        _customerRepository = customerRepository;
+        _emailQueue = emailQueue;
         _validator = validator;
     }
 
@@ -60,6 +65,18 @@ public class ProcessPaymentUseCase
         await _ticketRepository.AddRangeAsync(tickets, cancellationToken);
 
         await _paymentRepository.SaveChangesAsync(cancellationToken);
+
+        var customer = await _customerRepository.GetByIdAsync(order.CustomerId, cancellationToken);
+        if (customer != null)
+        {
+            await _emailQueue.PublishAsync(new EmailMessage(
+                customer.Email.Value,
+                customer.Name,
+                order.Id,
+                order.TotalAmount,
+                tickets.Count
+            ), cancellationToken);
+        }
 
         return new PaymentDto(
             payment.Id,
